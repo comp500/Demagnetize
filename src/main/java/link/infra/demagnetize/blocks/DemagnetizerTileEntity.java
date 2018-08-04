@@ -1,5 +1,7 @@
 package link.infra.demagnetize.blocks;
 
+import java.util.List;
+
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -24,16 +26,18 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	}
 	
 	@Override
-    public void update() {
-		/*List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, new AxisAlignedBB(getPos().add(-2, -2, -2), getPos().add(2, 2, 2)));
+	public void update() {
+		// Remove te if it has been destroyed
+		if (isInvalid()) {
+			DemagnetizerEventHandler.removeTileEntity(this);
+			return;
+		}
+
+		List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class,
+				new AxisAlignedBB(getPos().add(-2, -2, -2), getPos().add(2, 2, 2)));
 		for (EntityItem item : list) {
-			NBTTagCompound data = item.getEntityData();
-			if (data != null) {
-				if (!data.getBoolean("PreventRemoteMovement")) {
-					data.setBoolean("PreventRemoteMovement", true);
-				}
-			}
-		}*/
+			demagnetizeItem(item);
+		}
 	}
 	
 	// Ensure that the new bounding box is updated

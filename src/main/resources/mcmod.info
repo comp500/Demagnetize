@@ -1,0 +1,8 @@
+[{
+  "modid": "demagnetize",
+  "name": "Demagnetize",
+  "description": "Stops magnets in an area.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "authorList": ["comp500"]
+}]

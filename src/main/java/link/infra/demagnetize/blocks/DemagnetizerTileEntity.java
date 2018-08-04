@@ -1,6 +1,5 @@
 package link.infra.demagnetize.blocks;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,9 +7,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	
@@ -18,8 +14,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 
 	public DemagnetizerTileEntity() {
 		super();
-		MinecraftForge.EVENT_BUS.register(this);
 		scanArea = new AxisAlignedBB(getPos().add(-2, -2, -2), getPos().add(2, 2, 2));
+		DemagnetizerEventHandler.addTileEntity(this);
 	}
 
 	public boolean canInteractWith(EntityPlayer playerIn) {
@@ -47,25 +43,23 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		scanArea = new AxisAlignedBB(getPos().add(-2, -2, -2), getPos().add(2, 2, 2));
 	}
 	
-	@SubscribeEvent
-	public void itemSpawned(EntityJoinWorldEvent event) {
-		if (isInvalid()) {
-			MinecraftForge.EVENT_BUS.unregister(this);
-			return;
+	public boolean checkItem(EntityItem item) {
+		if (scanArea != null && item != null) {
+			AxisAlignedBB entityBox = item.getEntityBoundingBox();
+			if (entityBox == null) {
+				return false;
+			}
+			return scanArea.intersects(entityBox);
+		} else {
+			return false;
 		}
-		
-		Entity ent = event.getEntity();
-		if (ent instanceof EntityItem) {
-			//System.out.println("detected item");
-			AxisAlignedBB entityBox = ent.getEntityBoundingBox();
-			if (scanArea != null && entityBox != null && scanArea.intersects(entityBox)) {
-				NBTTagCompound data = ((EntityItem) ent).getEntityData();
-				System.out.println("hello " + ((EntityItem)ent).getDisplayName().getUnformattedText());
-				if (data != null) {
-					if (!data.getBoolean("PreventRemoteMovement")) {
-						data.setBoolean("PreventRemoteMovement", true);
-					}
-				}
+	}
+	
+	public void demagnetizeItem(EntityItem item) {
+		NBTTagCompound data = item.getEntityData();
+		if (data != null) {
+			if (!data.getBoolean("PreventRemoteMovement")) {
+				data.setBoolean("PreventRemoteMovement", true);
 			}
 		}
 	}

@@ -67,5 +67,13 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			}
 		}
 	}
+	
+	public void updateRedstone(boolean redstoneStatus) {
+		
+	}
+
+	public boolean isRedstoneEnabled() {
+		return true;
+	}
 
 }

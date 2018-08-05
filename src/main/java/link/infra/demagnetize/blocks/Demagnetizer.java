@@ -13,6 +13,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
@@ -50,6 +51,23 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
+	}
+
+	@Override
+	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block neighborBlock, BlockPos neighborPos) {
+		TileEntity te = worldIn.getTileEntity(pos);
+		if (te instanceof DemagnetizerTileEntity) {
+			((DemagnetizerTileEntity) te).updateRedstone(worldIn.isBlockPowered(pos));
+		}
+	}
+	
+	@Override
+	public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing sid) {
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof DemagnetizerTileEntity) {
+			return ((DemagnetizerTileEntity) te).isRedstoneEnabled();
+		}
+		return false;
 	}
 
 }

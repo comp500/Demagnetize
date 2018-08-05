@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -181,10 +182,21 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	}
 
-	private ItemStackHandler itemStackHandler = new ItemStackHandler(getFilterSize()) {
+	protected ItemStackHandler itemStackHandler = new ItemStackHandler(getFilterSize()) {
 		@Override
 		protected void onContentsChanged(int slot) {
 			DemagnetizerTileEntity.this.markDirty();
+		}
+		
+		@Override
+		public int getSlotLimit(int slot) {
+			return 1; // Only allow one item
+		}
+		
+		@Override
+		public ItemStack extractItem(int slot, int amount, boolean simulate) {
+			this.stacks.set(slot, ItemStack.EMPTY);
+			return ItemStack.EMPTY; // Extract "failed", no increment of stack size (ghost item)
 		}
 	};
 

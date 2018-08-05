@@ -9,17 +9,24 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	
+	public enum RedstoneStatus {
+		REDSTONE_DISABLED,
+		POWERED,
+		UNPOWERED
+	}
+	
 	AxisAlignedBB scanArea;
 	private int range;
-	private final int maxRange;
-
+	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
+	private boolean filtersWhitelist = false; // Default to using blacklist
+	
 	public DemagnetizerTileEntity() {
 		super();
-		this.maxRange = getMaxRange();
-		range = maxRange;
+		range = getMaxRange();
 		
 		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
@@ -41,11 +48,44 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		super.setPos(pos);
 		updateBoundingBox();
 	}
-	
-	public boolean canInteractWith(EntityPlayer playerIn) {
-		// If we are too far away from this tile entity you cannot use it
-		return !isInvalid() && playerIn.getDistanceSq(pos.add(0.5D, 0.5D, 0.5D)) <= 64D;
+
+	@Override
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		if (compound.hasKey("items")) {
+			itemStackHandler.deserializeNBT((NBTTagCompound) compound.getTag("items"));
+		}
+		if (compound.hasKey("redstone")) {
+			try {
+				redstoneSetting = RedstoneStatus.valueOf(compound.getString("redstone"));
+			} catch (IllegalArgumentException e) {
+				// Ignore
+			}
+		}
+		if (compound.hasKey("range")) {
+			int pendingRange = compound.getInteger("range");
+			if (pendingRange <= getMaxRange() && pendingRange > 0) {
+				range = pendingRange;
+			}
+		}
+		if (compound.hasKey("whitelist")) {
+			filtersWhitelist = compound.getBoolean("whitelist");
+		}
 	}
+
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
+		super.writeToNBT(compound);
+		compound.setTag("items", itemStackHandler.serializeNBT());
+		compound.setString("redstone", redstoneSetting.name());
+		compound.setInteger("range", range);
+		compound.setBoolean("whitelist", filtersWhitelist);
+		return compound;
+	}
+
+	// Only check for items every 4 ticks
+	private final int tickTime = 4;
+	private int currTick = tickTime;
 	
 	@Override
 	public void update() {
@@ -54,10 +94,16 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			DemagnetizerEventHandler.removeTileEntity(this);
 			return;
 		}
-
-		List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, scanArea);
-		for (EntityItem item : list) {
-			demagnetizeItem(item);
+		
+		if (currTick == tickTime) {
+			List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, scanArea);
+			for (EntityItem item : list) {
+				demagnetizeItem(item);
+			}
+			
+			currTick = 0;
+		} else {
+			currTick++;
 		}
 	}
 	
@@ -88,6 +134,23 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 
 	public boolean isRedstoneEnabled() {
 		return true;
+	}
+	
+	private ItemStackHandler itemStackHandler = new ItemStackHandler(getFilterSize()) {
+		@Override
+		protected void onContentsChanged(int slot) {
+			DemagnetizerTileEntity.this.markDirty();
+		}
+	};
+	
+	// TODO: replace with configuration
+	public int getFilterSize() {
+		return 4;
+	}
+	
+	public boolean canInteractWith(EntityPlayer playerIn) {
+		// If we are too far away from this tile entity you cannot use it
+		return !isInvalid() && playerIn.getDistanceSq(pos.add(0.5D, 0.5D, 0.5D)) <= 64D;
 	}
 
 }

@@ -28,10 +28,15 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 		setCreativeTab(ModItems.tab);
 		setHardness(1.0F);
 	}
+	
+	public int getRange() {
+		// TODO: replace with configuration
+		return 4;
+	}
 
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
-		return new DemagnetizerTileEntity();
+		return new DemagnetizerTileEntity(getRange());
 	}
 
 	@Override

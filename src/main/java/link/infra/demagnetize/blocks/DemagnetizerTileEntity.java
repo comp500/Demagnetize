@@ -13,13 +13,31 @@ import net.minecraft.util.math.BlockPos;
 public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	
 	AxisAlignedBB scanArea;
+	private int range;
+	@SuppressWarnings("unused")
+	private final int maxRange;
 
-	public DemagnetizerTileEntity() {
+	public DemagnetizerTileEntity(int maxRange) {
 		super();
-		scanArea = new AxisAlignedBB(getPos().add(-2, -2, -2), getPos().add(2, 2, 2));
+		this.maxRange = maxRange;
+		range = maxRange;
+		
+		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
 	}
 
+	private void updateBoundingBox() {
+		int negRange = range * -1;
+		scanArea = new AxisAlignedBB(getPos().add(negRange, negRange, negRange), getPos().add(range, range, range));
+	}
+	
+	// Ensure that the new bounding box is updated
+	@Override
+	public void setPos(BlockPos pos) {
+		super.setPos(pos);
+		updateBoundingBox();
+	}
+	
 	public boolean canInteractWith(EntityPlayer playerIn) {
 		// If we are too far away from this tile entity you cannot use it
 		return !isInvalid() && playerIn.getDistanceSq(pos.add(0.5D, 0.5D, 0.5D)) <= 64D;
@@ -33,18 +51,10 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			return;
 		}
 
-		List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class,
-				new AxisAlignedBB(getPos().add(-2, -2, -2), getPos().add(2, 2, 2)));
+		List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, scanArea);
 		for (EntityItem item : list) {
 			demagnetizeItem(item);
 		}
-	}
-	
-	// Ensure that the new bounding box is updated
-	@Override
-	public void setPos(BlockPos pos) {
-		super.setPos(pos);
-		scanArea = new AxisAlignedBB(getPos().add(-2, -2, -2), getPos().add(2, 2, 2));
 	}
 	
 	public boolean checkItem(EntityItem item) {

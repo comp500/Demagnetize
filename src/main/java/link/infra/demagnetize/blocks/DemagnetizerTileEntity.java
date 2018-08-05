@@ -156,8 +156,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		NBTTagCompound data = item.getEntityData();
 		if (data != null) {
 			if (!data.getBoolean("PreventRemoteMovement")) {
-				System.out.println("hi " + item.getName());
-				System.out.println(item.getEntityWorld().isRemote);
 				data.setBoolean("PreventRemoteMovement", true);
 			}
 		}

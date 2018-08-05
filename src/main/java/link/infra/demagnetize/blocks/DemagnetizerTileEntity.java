@@ -14,16 +14,20 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	
 	AxisAlignedBB scanArea;
 	private int range;
-	@SuppressWarnings("unused")
 	private final int maxRange;
 
-	public DemagnetizerTileEntity(int maxRange) {
+	public DemagnetizerTileEntity() {
 		super();
-		this.maxRange = maxRange;
+		this.maxRange = getMaxRange();
 		range = maxRange;
 		
 		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
+	}
+	
+	// TODO: replace with configuration
+	public int getMaxRange() {
+		return 4;
 	}
 
 	private void updateBoundingBox() {

@@ -1,7 +1,6 @@
 package link.infra.demagnetize.blocks;
 
 import link.infra.demagnetize.Demagnetize;
-import link.infra.demagnetize.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -87,7 +86,7 @@ public class DemagnetizerGui extends GuiContainer {
 	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		String demagName = I18n.format(ModBlocks.demagnetizer.getUnlocalizedName() + ".name");
+		String demagName = I18n.format(te.getBlockType().getUnlocalizedName() + ".name");
 		int centeredPos = (xSize - fontRenderer.getStringWidth(demagName)) / 2;
 		fontRenderer.drawString(demagName, centeredPos, 6, 0x404040);
 		fontRenderer.drawString(I18n.format("container.inventory"), 8, ySize - 96 + 3, 0x404040);

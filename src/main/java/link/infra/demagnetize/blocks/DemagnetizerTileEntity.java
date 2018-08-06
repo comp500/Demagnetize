@@ -130,6 +130,9 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		if (currTick == tickTime) {
 			List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, scanArea);
 			for (EntityItem item : list) {
+				if (!checkItemFilter(item)) {
+					continue;
+				}
 				demagnetizeItem(item);
 			}
 
@@ -149,7 +152,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			if (entityBox == null) {
 				return false;
 			}
-			return scanArea.intersects(entityBox);
+			return scanArea.intersects(entityBox) && checkItemFilter(item);
 		} else {
 			return false;
 		}
@@ -207,8 +210,45 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	};
 
 	// TODO: replace with configuration
+	// might break NBT though
 	public int getFilterSize() {
 		return 4;
+	}
+	
+	public boolean checkItemFilter(EntityItem item) {
+		// Client event gives empty itemstack, cannot be compared so must ignore
+		if (item.getItem().isEmpty()) {
+			// If filter is empty and whitelist is disabled, can safely demagnetize
+			if (!filtersWhitelist) {
+				for (int i = 0; i < itemStackHandler.getSlots(); i++) {
+					if (!itemStackHandler.getStackInSlot(i).isEmpty()) {
+						return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		if (filtersWhitelist) {
+			return checkItemFilterMatches(item);
+		} else {
+			return !checkItemFilterMatches(item);
+		}
+	}
+	
+	public boolean checkItemFilterMatches(EntityItem item) {
+		ItemStack matchingItem = item.getItem();
+		for (int i = 0; i < itemStackHandler.getSlots(); i++) {
+			ItemStack filterStack = itemStackHandler.getStackInSlot(i);
+			if (filterStack.isEmpty()) {
+				continue;
+			}
+			if (filterStack.isItemEqualIgnoreDurability(matchingItem)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean canInteractWith(EntityPlayer playerIn) {

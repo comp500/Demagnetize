@@ -30,23 +30,45 @@ public class DemagnetizerGui extends GuiContainer {
 	public void initGui() {
 		super.initGui();
 		
-		buttonList.add(new RangeSlider(0, guiLeft + 7, guiTop + 17, te.getMaxRange(), 1));
+		buttonList.add(new RangeSlider(0, guiLeft + 7, guiTop + 17, te.getMaxRange(), te.getRange()));
+		
 		String[] rsStates = {"rsignored", "rson", "rsoff"};
-		rsButton = new IconButton(1, guiLeft + 124, guiTop + 17, rsStates, 0, background, 0, 184) {
+		int currentRSState;
+		switch (te.getRedstoneSetting()) {
+		case POWERED:
+			currentRSState = 1;
+			break;
+		case UNPOWERED:
+			currentRSState = 2;
+			break;
+		case REDSTONE_DISABLED:
+		default:
+			currentRSState = 0;
+		}
+		rsButton = new IconButton(1, guiLeft + 124, guiTop + 17, rsStates, currentRSState, background, 0, 184) {
 			@Override
 			public void updateState(int currentState) {
-				// TODO Auto-generated method stub
-				
+				switch (currentState) {
+				case 0:
+					te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.REDSTONE_DISABLED);
+					break;
+				case 1:
+					te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.POWERED);
+					break;
+				case 2:
+					te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.UNPOWERED);
+					break;
+				}
 			}
 		};
 		buttonList.add(rsButton);
 		
 		String[] whitelistStates = {"blacklist", "whitelist"};
-		whitelistButton = new IconButton(2, guiLeft + 148, guiTop + 17, whitelistStates, 0, background, 0, 204) {
+		int currentWhitelistState = te.isWhitelist() ? 1 : 0;
+		whitelistButton = new IconButton(2, guiLeft + 148, guiTop + 17, whitelistStates, currentWhitelistState, background, 0, 204) {
 			@Override
 			public void updateState(int currentState) {
-				// TODO Auto-generated method stub
-				
+				te.setWhitelist(currentState == 1);
 			}
 		};
 		buttonList.add(whitelistButton);
@@ -84,13 +106,16 @@ public class DemagnetizerGui extends GuiContainer {
 	
 	public void actionPerformed(GuiButton button) {
 		switch (button.id) {
+		case 0:
+			te.setRange(((RangeSlider) button).getValue());
+			break;
 		case 1:
 		case 2:
 			((IconButton) button).handleClick();
 		}
 	}
 
-	public class RangeSlider extends GuiButton {
+	private class RangeSlider extends GuiButton {
 
 		private int sliderValue;
 		public boolean dragging;
@@ -120,6 +145,7 @@ public class DemagnetizerGui extends GuiContainer {
 					}
 					this.sliderValue = Math.round(mouseValue * (maxValue - minValue)) + minValue;
 					setDisplayString();
+					te.setRange(sliderValue);
 				}
 
 				mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
@@ -137,6 +163,8 @@ public class DemagnetizerGui extends GuiContainer {
 				float mouseValue = (float) (mouseX - (this.x + 4)) / (float) (this.width - 8);
 				this.sliderValue = Math.round(mouseValue * (maxValue - minValue)) + minValue;
 				setDisplayString();
+				te.setRange(sliderValue);
+				
 				this.dragging = true;
 				return true;
 			} else {
@@ -151,6 +179,10 @@ public class DemagnetizerGui extends GuiContainer {
 		public void setDisplayString() {
 			String rangeText = I18n.format("label." + Demagnetize.MODID + ".demagnetizer.range.name");
 			this.displayString = rangeText + ": " + sliderValue;
+		}
+		
+		public int getValue() {
+			return sliderValue;
 		}
 
 	}

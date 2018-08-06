@@ -209,5 +209,41 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		// If we are too far away from this tile entity you cannot use it
 		return !isInvalid() && playerIn.getDistanceSq(pos.add(0.5D, 0.5D, 0.5D)) <= 64D;
 	}
+	
+	public int getRange() {
+		return range;
+	}
+	
+	public RedstoneStatus getRedstoneSetting() {
+		return redstoneSetting;
+	}
+	
+	public boolean isWhitelist() {
+		return filtersWhitelist;
+	}
+	
+	private void updateBlock() {
+		markDirty();
+		if (world != null) {
+			IBlockState state = world.getBlockState(getPos());
+			world.notifyBlockUpdate(getPos(), state, state, 3);
+		}
+	}
+	
+	public void setRange(int range) {
+		this.range = range;
+		markDirty();
+		//updateBlock();
+	}
+	
+	public void setRedstoneSetting(RedstoneStatus setting) {
+		this.redstoneSetting = setting;
+		//updateBlock();
+	}
+	
+	public void setWhitelist(boolean whitelist) {
+		this.filtersWhitelist = whitelist;
+		//updateBlock();
+	}
 
 }

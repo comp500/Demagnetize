@@ -76,6 +76,8 @@ public class DemagnetizerGui extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		mc.getTextureManager().bindTexture(background);
+		// Reset color, fixes hovering over JEI config button
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, 176, 166);
 		for (int i = 0; i < te.getFilterSize(); i++) {
 			int row = i / 4;

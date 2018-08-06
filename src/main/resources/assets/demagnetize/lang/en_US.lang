@@ -1,3 +1,10 @@
 itemGroup.demagnetize=Demagnetize
 
 tile.demagnetize.demagnetizer.name=Demagnetizer
+label.demagnetize.demagnetizer.filter.name=Filter
+label.demagnetize.demagnetizer.range.name=Range
+label.demagnetize.demagnetizer.blacklist.name=Blacklist
+label.demagnetize.demagnetizer.whitelist.name=Whitelist
+label.demagnetize.demagnetizer.rsignored.name=Redstone Ignored
+label.demagnetize.demagnetizer.rson.name=Redstone On
+label.demagnetize.demagnetizer.rsoff.name=Redstone Off

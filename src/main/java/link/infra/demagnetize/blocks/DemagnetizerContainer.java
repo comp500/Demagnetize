@@ -42,7 +42,7 @@ public class DemagnetizerContainer extends Container {
 		for (int i = 0; i < te.getFilterSize(); i++) {
 			int row = i / 4;
 			int column = i % 4;
-			addSlotToContainer(new SlotItemHandler(te.itemStackHandler, i, 70 + (column * 18), 26 + (row * 18)));
+			addSlotToContainer(new SlotItemHandler(te.itemStackHandler, i, 8 + (column * 18), 53 + (row * 18)));
 		}
 	}
 

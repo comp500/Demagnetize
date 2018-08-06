@@ -3,6 +3,8 @@ package link.infra.demagnetize.proxy;
 import link.infra.demagnetize.Demagnetize;
 import link.infra.demagnetize.ModBlocks;
 import link.infra.demagnetize.blocks.Demagnetizer;
+import link.infra.demagnetize.blocks.DemagnetizerAdvanced;
+import link.infra.demagnetize.blocks.DemagnetizerAdvancedTileEntity;
 import link.infra.demagnetize.blocks.DemagnetizerTileEntity;
 import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.Block;
@@ -34,11 +36,14 @@ public class CommonProxy {
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
 		event.getRegistry().register(new Demagnetizer());
+		event.getRegistry().register(new DemagnetizerAdvanced());
 		GameRegistry.registerTileEntity(DemagnetizerTileEntity.class, new ResourceLocation(Demagnetize.MODID, "demagnetizertile"));
+		GameRegistry.registerTileEntity(DemagnetizerAdvancedTileEntity.class, new ResourceLocation(Demagnetize.MODID, "demagnetizer_advancedtile"));
 	}
 
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
 		event.getRegistry().register(new ItemBlock(ModBlocks.demagnetizer).setRegistryName(ModBlocks.demagnetizer.getRegistryName()));
+		event.getRegistry().register(new ItemBlock(ModBlocks.demagnetizerAdvanced).setRegistryName(ModBlocks.demagnetizerAdvanced.getRegistryName()));
 	}
 }

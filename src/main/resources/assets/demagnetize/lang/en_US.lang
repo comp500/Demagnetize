@@ -1,6 +1,7 @@
 itemGroup.demagnetize=Demagnetize
 
 tile.demagnetize.demagnetizer.name=Demagnetizer
+tile.demagnetize.demagnetizer_advanced.name=Advanced Demagnetizer
 label.demagnetize.demagnetizer.filter.name=Filter
 label.demagnetize.demagnetizer.range.name=Range
 label.demagnetize.demagnetizer.blacklist.name=Blacklist items

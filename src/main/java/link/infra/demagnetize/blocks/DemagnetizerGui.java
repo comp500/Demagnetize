@@ -80,9 +80,7 @@ public class DemagnetizerGui extends GuiContainer {
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, 176, 166);
 		for (int i = 0; i < te.getFilterSize(); i++) {
-			int row = i / 4;
-			int column = i % 4;
-			drawTexturedModalRect(guiLeft + 7 + (column * 18), guiTop + 52 + (row * 18), 0, 166, 18, 18);
+			drawTexturedModalRect(guiLeft + 7 + (i * 18), guiTop + 52, 0, 166, 18, 18);
 		}
 	}
 	

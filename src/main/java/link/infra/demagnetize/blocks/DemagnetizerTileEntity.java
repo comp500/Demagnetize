@@ -257,6 +257,12 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	}
 	
 	public int getRange() {
+		if (range > getMaxRange()) {
+			range = getMaxRange();
+		}
+		if (range < 1) {
+			range = 0;
+		}
 		return range;
 	}
 	

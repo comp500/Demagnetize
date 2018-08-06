@@ -28,6 +28,11 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 		setHardness(1.0F);
 	}
 
+	// For extension
+	public Demagnetizer(Material rock) {
+		super(rock);
+	}
+
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		return new DemagnetizerTileEntity();

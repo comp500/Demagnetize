@@ -7,8 +7,6 @@ import link.infra.demagnetize.blocks.DemagnetizerTileEntity.RedstoneStatus;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
@@ -82,10 +80,6 @@ public class PacketDemagnetizerSettings implements IMessage {
 				} else {
 					Demagnetize.logger.warn("Player tried to change settings of something that isn't a demagnetizer (or doesn't have a TE)!");
 				}
-				
-				// Note: if this is a real message you want to show to a player and not a debug message you should
-				// use localized messages with TextComponentTranslated.
-				playerEntity.sendStatusMessage(new TextComponentString(TextFormatting.GREEN + "Hit block: " + te.getBlockType().getRegistryName()), false);
 			}
 		}
 	}

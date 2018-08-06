@@ -2,6 +2,8 @@ package link.infra.demagnetize.blocks;
 
 import java.util.List;
 
+import link.infra.demagnetize.network.PacketDemagnetizerSettings;
+import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -162,13 +164,17 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	}
 
-	public void updateRedstone(boolean redstoneStatus) {
-		isPowered = redstoneStatus;
+	public void updateBlock() {
 		markDirty();
 		if (world != null) {
 			IBlockState state = world.getBlockState(getPos());
 			world.notifyBlockUpdate(getPos(), state, state, 3);
 		}
+	}
+	
+	public void updateRedstone(boolean redstoneStatus) {
+		isPowered = redstoneStatus;
+		updateBlock();
 	}
 
 	private boolean redstoneCheck() {
@@ -222,28 +228,21 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		return filtersWhitelist;
 	}
 	
-	private void updateBlock() {
-		markDirty();
-		if (world != null) {
-			IBlockState state = world.getBlockState(getPos());
-			world.notifyBlockUpdate(getPos(), state, state, 3);
-		}
-	}
-	
 	public void setRange(int range) {
 		this.range = range;
-		markDirty();
-		//updateBlock();
+		updateBoundingBox();
 	}
 	
 	public void setRedstoneSetting(RedstoneStatus setting) {
 		this.redstoneSetting = setting;
-		//updateBlock();
 	}
 	
 	public void setWhitelist(boolean whitelist) {
 		this.filtersWhitelist = whitelist;
-		//updateBlock();
+	}
+	
+	public void sendSettingsToServer() {
+		PacketHandler.INSTANCE.sendToServer(new PacketDemagnetizerSettings(range, redstoneSetting, filtersWhitelist, getPos()));
 	}
 
 }

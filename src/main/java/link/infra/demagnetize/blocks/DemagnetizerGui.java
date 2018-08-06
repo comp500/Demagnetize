@@ -114,6 +114,11 @@ public class DemagnetizerGui extends GuiContainer {
 			((IconButton) button).handleClick();
 		}
 	}
+	
+	@Override
+	public void onGuiClosed() {
+		te.sendSettingsToServer();
+	}
 
 	private class RangeSlider extends GuiButton {
 

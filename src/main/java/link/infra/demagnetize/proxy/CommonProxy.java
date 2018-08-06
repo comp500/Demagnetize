@@ -4,6 +4,7 @@ import link.infra.demagnetize.Demagnetize;
 import link.infra.demagnetize.ModBlocks;
 import link.infra.demagnetize.blocks.Demagnetizer;
 import link.infra.demagnetize.blocks.DemagnetizerTileEntity;
+import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 @Mod.EventBusSubscriber
 public class CommonProxy {
 	public void preInit(FMLPreInitializationEvent e) {
+		PacketHandler.registerMessages("demagnetize");
 	}
 
 	public void init(FMLInitializationEvent e) {

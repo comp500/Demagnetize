@@ -57,6 +57,11 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
+		readInternalNBT(compound);
+	}
+	
+	// Read NBT without setting BlockPos
+	public void readInternalNBT(NBTTagCompound compound) {
 		if (compound.hasKey("items")) {
 			itemStackHandler.deserializeNBT((NBTTagCompound) compound.getTag("items"));
 		}
@@ -84,12 +89,16 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
+		writeInternalNBT(compound);
+		return compound;
+	}
+	
+	public void writeInternalNBT(NBTTagCompound compound) {
 		compound.setTag("items", itemStackHandler.serializeNBT());
 		compound.setString("redstone", redstoneSetting.name());
 		compound.setInteger("range", range);
 		compound.setBoolean("whitelist", filtersWhitelist);
 		compound.setBoolean("redstonePowered", isPowered);
-		return compound;
 	}
 
 	@Override

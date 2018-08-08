@@ -9,3 +9,5 @@ label.demagnetize.demagnetizer.whitelist.name=Whitelist items
 label.demagnetize.demagnetizer.rsignored.name=Redstone Ignored
 label.demagnetize.demagnetizer.rson.name=Redstone On
 label.demagnetize.demagnetizer.rsoff.name=Redstone Off
+
+tooltip.demagnetize.configured.name=Configured

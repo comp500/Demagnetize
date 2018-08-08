@@ -1,11 +1,12 @@
 package link.infra.demagnetize.blocks;
 
+import link.infra.demagnetize.ConfigHandler;
+
 public class DemagnetizerAdvancedTileEntity extends DemagnetizerTileEntity {
 	
-	// TODO: replace with configuration
 	@Override
 	public int getMaxRange() {
-		return 16;
+		return ConfigHandler.demagnetizerAdvancedRange;
 	}
 	
 	// TODO: replace with configuration

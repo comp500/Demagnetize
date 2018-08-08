@@ -74,5 +74,25 @@ public class DemagnetizerEventHandler {
 			}
 		}
 	}
+	
+	public static void updateBoundingBoxes() {
+		for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
+			WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
+			
+			if (weakRef.get() == null) {
+				iterator.remove();
+				continue;
+			}
+			
+			DemagnetizerTileEntity ent = weakRef.get();
+			
+			if (ent.isInvalid()) {
+				iterator.remove();
+				continue;
+			}
+			// Force it to recalculate bounding boxes and maximum sizes
+			ent.setRange(ent.getRange());
+		}
+	}
 
 }

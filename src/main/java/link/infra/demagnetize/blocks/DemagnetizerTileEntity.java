@@ -2,6 +2,7 @@ package link.infra.demagnetize.blocks;
 
 import java.util.List;
 
+import link.infra.demagnetize.ConfigHandler;
 import link.infra.demagnetize.network.PacketDemagnetizerSettings;
 import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.state.IBlockState;
@@ -37,9 +38,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		DemagnetizerEventHandler.addTileEntity(this);
 	}
 
-	// TODO: replace with configuration
 	public int getMaxRange() {
-		return 4;
+		return ConfigHandler.demagnetizerRange;
 	}
 
 	private void updateBoundingBox() {

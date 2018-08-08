@@ -1,7 +1,6 @@
 package link.infra.demagnetize.blocks;
 
 import link.infra.demagnetize.Demagnetize;
-import link.infra.demagnetize.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -22,15 +21,7 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 
 	public Demagnetizer() {
 		super(Material.ROCK);
-		setUnlocalizedName(Demagnetize.MODID + ".demagnetizer");
-		setRegistryName("demagnetizer");
-		setCreativeTab(ModItems.tab);
 		setHardness(1.0F);
-	}
-
-	// For extension
-	public Demagnetizer(Material rock) {
-		super(rock);
 	}
 
 	@Override

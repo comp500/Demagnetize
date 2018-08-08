@@ -2,6 +2,7 @@ package link.infra.demagnetize.proxy;
 
 import link.infra.demagnetize.Demagnetize;
 import link.infra.demagnetize.ModBlocks;
+import link.infra.demagnetize.ModItems;
 import link.infra.demagnetize.blocks.Demagnetizer;
 import link.infra.demagnetize.blocks.DemagnetizerAdvanced;
 import link.infra.demagnetize.blocks.DemagnetizerAdvancedTileEntity;
@@ -35,10 +36,18 @@ public class CommonProxy {
 
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().register(new Demagnetizer());
-		event.getRegistry().register(new DemagnetizerAdvanced());
-		GameRegistry.registerTileEntity(DemagnetizerTileEntity.class, new ResourceLocation(Demagnetize.MODID, "demagnetizertile"));
-		GameRegistry.registerTileEntity(DemagnetizerAdvancedTileEntity.class, new ResourceLocation(Demagnetize.MODID, "demagnetizer_advancedtile"));
+		event.getRegistry().register(new Demagnetizer()
+				.setUnlocalizedName(Demagnetize.MODID + ".demagnetizer")
+				.setRegistryName("demagnetizer")
+				.setCreativeTab(ModItems.tab));
+		event.getRegistry().register(new DemagnetizerAdvanced()
+				.setUnlocalizedName(Demagnetize.MODID + ".demagnetizer_advanced")
+				.setRegistryName("demagnetizer_advanced")
+				.setCreativeTab(ModItems.tab));
+		GameRegistry.registerTileEntity(DemagnetizerTileEntity.class,
+				new ResourceLocation(Demagnetize.MODID, "demagnetizertile"));
+		GameRegistry.registerTileEntity(DemagnetizerAdvancedTileEntity.class,
+				new ResourceLocation(Demagnetize.MODID, "demagnetizer_advancedtile"));
 	}
 
 	@SubscribeEvent

@@ -1,6 +1,12 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/cube",
   "textures": {
-    "all": "demagnetize:blocks/demagnetizer"
+    "particle": "demagnetize:blocks/demagnetizer",
+    "down": "demagnetize:blocks/demagnetizer_top",
+    "up": "demagnetize:blocks/demagnetizer_top",
+    "east": "demagnetize:blocks/demagnetizer",
+    "west": "demagnetize:blocks/demagnetizer",
+    "north": "demagnetize:blocks/demagnetizer",
+    "south": "demagnetize:blocks/demagnetizer"
   }
 }

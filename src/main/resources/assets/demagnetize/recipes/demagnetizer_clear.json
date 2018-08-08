@@ -1,0 +1,11 @@
+{
+	"result": {
+		"item": "demagnetize:demagnetizer"
+	},
+	"ingredients": [
+		{
+			"item": "demagnetize:demagnetizer"
+		}
+	],
+	"type": "minecraft:crafting_shapeless"
+}

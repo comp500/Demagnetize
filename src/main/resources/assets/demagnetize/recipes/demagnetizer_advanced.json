@@ -1,0 +1,24 @@
+{
+	"result": {
+		"item": "demagnetize:demagnetizer_advanced"
+	},
+	"pattern": [
+		"ipi",
+		"pep",
+		"ipi"
+	],
+	"type": "forge:ore_shaped",
+	"key": {
+		"p": {
+			"type": "forge:ore_dict",
+			"ore": "paper"
+		},
+		"i": {
+			"type": "forge:ore_dict",
+			"ore": "ingotIron"
+		},
+		"e": {
+			"item": "demagnetize:demagnetizer"
+		}
+	}
+}

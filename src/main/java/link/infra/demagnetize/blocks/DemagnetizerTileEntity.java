@@ -173,6 +173,10 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			if (!data.getBoolean("PreventRemoteMovement")) {
 				data.setBoolean("PreventRemoteMovement", true);
 			}
+			// Allow machines to remotely move items
+			if (!data.getBoolean("AllowMachineRemoteMovement")) {
+				data.setBoolean("AllowMachineRemoteMovement", true);
+			}
 		}
 	}
 

@@ -1,8 +1,9 @@
 [{
   "modid": "demagnetize",
   "name": "Demagnetize",
-  "description": "Stops magnets in an area.",
+  "description": "Stops item magnets in an area around the Demagnetizer.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "authorList": ["comp500"]
+  "authorList": ["comp500"],
+  "url": "https://github.com/comp500/Demagnetize/"
 }]

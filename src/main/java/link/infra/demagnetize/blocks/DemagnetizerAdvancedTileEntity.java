@@ -9,11 +9,9 @@ public class DemagnetizerAdvancedTileEntity extends DemagnetizerTileEntity {
 		return ConfigHandler.demagnetizerAdvancedRange;
 	}
 	
-	// TODO: replace with configuration
-	// might break NBT though
 	@Override
 	public int getFilterSize() {
-		return 9;
+		return ConfigHandler.demagnetizerAdvancedFilterSlots;
 	}
 
 }

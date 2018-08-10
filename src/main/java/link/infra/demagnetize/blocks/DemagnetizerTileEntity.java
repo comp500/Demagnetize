@@ -63,7 +63,10 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	// Read NBT without setting BlockPos
 	public void readInternalNBT(NBTTagCompound compound) {
 		if (compound.hasKey("items")) {
-			itemStackHandler.deserializeNBT((NBTTagCompound) compound.getTag("items"));
+			NBTTagCompound itemsTag = (NBTTagCompound) compound.getTag("items");
+			// Reset the filter size in NBT, in case config changes
+			itemsTag.setInteger("Size", getFilterSize());
+			itemStackHandler.deserializeNBT(itemsTag);
 		}
 		if (compound.hasKey("redstone")) {
 			try {
@@ -222,10 +225,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	};
 
-	// TODO: replace with configuration
-	// might break NBT though
 	public int getFilterSize() {
-		return 4;
+		return ConfigHandler.demagnetizerFilterSlots;
 	}
 	
 	public boolean checkItemFilter(EntityItem item) {
@@ -253,6 +254,11 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	public boolean checkItemFilterMatches(EntityItem item) {
 		ItemStack matchingItem = item.getItem();
 		for (int i = 0; i < itemStackHandler.getSlots(); i++) {
+			// If the current slot index >= filter size, return and ignore future slots
+			if (i >= getFilterSize()) {
+				return false;
+			}
+			
 			ItemStack filterStack = itemStackHandler.getStackInSlot(i);
 			if (filterStack.isEmpty()) {
 				continue;

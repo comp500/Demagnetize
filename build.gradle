@@ -11,7 +11,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
-version = "1.12.2-1.0.0.1"
+version = "1.12.2-1.0.0.2"
 group = "link.infra.demagnetize" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "demagnetize"
 
@@ -91,8 +91,8 @@ dependencies {
 	// at runtime, use the full JEI jar
 	runtime "mezz.jei:jei_${jei_mc_version}:${jei_version}"
 	
-	deobfProvided "vazkii.botania:Botania:${botania_version}"
-	deobfProvided "com.azanor.baubles:Baubles:${baubles_mc_version}-${baubles_version}"
+	deobfCompile "vazkii.botania:Botania:${botania_version}"
+	deobfCompile "com.azanor.baubles:Baubles:${baubles_mc_version}-${baubles_version}"
 }
 
 processResources {

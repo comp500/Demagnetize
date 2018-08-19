@@ -46,6 +46,14 @@ repositories {
 		name = "JEI Maven"
 		url = "http://dvs1.progwml6.com/files/maven"
 	}
+	maven {
+		name = "Botania Maven"
+		url = "http://maven.blamejared.com"
+	}
+	maven {
+		name = "Baubles Maven"
+		url = "http://maven.thiakil.com"
+	}
 }
 
 dependencies {
@@ -82,7 +90,9 @@ dependencies {
 	deobfProvided "mezz.jei:jei_${jei_mc_version}:${jei_version}:api"
 	// at runtime, use the full JEI jar
 	runtime "mezz.jei:jei_${jei_mc_version}:${jei_version}"
-
+	
+	deobfProvided "vazkii.botania:Botania:${botania_version}"
+	deobfProvided "com.azanor.baubles:Baubles:${baubles_mc_version}-${baubles_version}"
 }
 
 processResources {

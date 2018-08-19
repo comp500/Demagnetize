@@ -29,11 +29,16 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
 	private boolean isPowered = false;
+	// TODO: only on botania added
+	private DemagnetizerSolegnoliaCompat subtile;
 
 	public DemagnetizerTileEntity() {
 		super();
 		range = getMaxRange();
 
+		// TODO: only on botania added
+		subtile = new DemagnetizerSolegnoliaCompat(getMaxRange(), this);
+		
 		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
 	}
@@ -45,6 +50,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private void updateBoundingBox() {
 		int negRange = range * -1;
 		scanArea = new AxisAlignedBB(getPos().add(negRange, negRange, negRange), getPos().add(range, range, range));
+		// TODO: only on botania added
+		subtile.setRange(range);
 	}
 
 	// Ensure that the new bounding box is updated
@@ -87,6 +94,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		if (compound.hasKey("redstonePowered")) {
 			isPowered = compound.getBoolean("redstonePowered");
 		}
+		// TODO: only on botania added
+		subtile.setActive(redstoneCheck());
 	}
 
 	@Override
@@ -152,6 +161,11 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		} else {
 			currTick++;
 		}
+		
+		// TODO: only on botania added
+		if (subtile != null) {
+			subtile.onUpdate();
+		}
 	}
 
 	public boolean checkItem(EntityItem item) {
@@ -194,6 +208,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	public void updateRedstone(boolean redstoneStatus) {
 		isPowered = redstoneStatus;
 		updateBlock();
+		// TODO: only on botania added
+		subtile.setActive(redstoneCheck());
 	}
 
 	private boolean redstoneCheck() {
@@ -300,6 +316,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	
 	public void setRedstoneSetting(RedstoneStatus setting) {
 		this.redstoneSetting = setting;
+		// TODO: only on botania added
+		subtile.setActive(redstoneCheck());
 	}
 	
 	public void setWhitelist(boolean whitelist) {

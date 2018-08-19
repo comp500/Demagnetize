@@ -6,27 +6,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import vazkii.botania.api.lexicon.LexiconEntry;
 import vazkii.botania.common.block.subtile.functional.SubTileSolegnolia;
 
 // Imitates a Solegnolia to disable the Botania magnet
-public class DemagnetizerSolegnoliaCompat extends SubTileSolegnolia {
-	
-	public static boolean isBotaniaEnabled() {
-		// TODO: add config
-		return Loader.isModLoaded("botania");
-	}
+// If this is moved, update the reflection reference in DemagnetizerTileEntity
+public class DemagnetizerSolegnoliaCompat extends SubTileSolegnolia implements IDemagnetizerSolegnoliaCompat {
 	
 	private int range;
-	
-	public DemagnetizerSolegnoliaCompat(int range, DemagnetizerTileEntity te) {
-		// Range is +1 of normal range due to how hasSolegnoliaAround calculates AABBs
-		this.range = range + 1;
-		this.supertile = te;
-	}
 	
 	@Override
 	public double getRange() {

@@ -39,8 +39,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		super();
 		range = getMaxRange();
 
-		// TODO: add config
-		if (Loader.isModLoaded("botania")) {
+		if (ConfigHandler.enableBotaniaCompat && Loader.isModLoaded("botania")) {
 			// reflection to avoid hard dependency on Botania
 			try {
 				subtile = Class.forName("link.infra.demagnetize.blocks.DemagnetizerSolegnoliaCompat").asSubclass(IDemagnetizerSolegnoliaCompat.class)
@@ -50,8 +49,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			} catch (Exception e) {
 				Demagnetize.logger.catching(Level.ERROR, e);
 			}
-		} else {
-			Demagnetize.logger.debug("hi");
 		}
 		
 		updateBoundingBox();

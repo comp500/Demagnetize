@@ -33,7 +33,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
 	private boolean isPowered = false;
-	private IDemagnetizerSolegnoliaCompat subtile;
+	private DemagnetizerSolegnoliaCompat subtile;
 
 	public DemagnetizerTileEntity() {
 		super();
@@ -42,8 +42,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		if (ConfigHandler.enableBotaniaCompat && Loader.isModLoaded("botania")) {
 			// reflection to avoid hard dependency on Botania
 			try {
-				subtile = Class.forName("link.infra.demagnetize.blocks.DemagnetizerSolegnoliaCompat").asSubclass(IDemagnetizerSolegnoliaCompat.class)
-						.newInstance();
+				subtile = new DemagnetizerSolegnoliaCompat();
 				subtile.setRange(getMaxRange());
 				subtile.setSupertile(this);
 			} catch (Exception e) {

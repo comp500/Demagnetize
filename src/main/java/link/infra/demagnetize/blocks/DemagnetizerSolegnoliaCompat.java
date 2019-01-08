@@ -12,8 +12,7 @@ import vazkii.botania.api.lexicon.LexiconEntry;
 import vazkii.botania.common.block.subtile.functional.SubTileSolegnolia;
 
 // Imitates a Solegnolia to disable the Botania magnet
-// If this is moved, update the reflection reference in DemagnetizerTileEntity
-public class DemagnetizerSolegnoliaCompat extends SubTileSolegnolia implements IDemagnetizerSolegnoliaCompat {
+public class DemagnetizerSolegnoliaCompat extends SubTileSolegnolia {
 	
 	private int range;
 	

@@ -17,22 +17,26 @@ public class DemagnetizerEventHandler {
 	private static List<WeakReference<DemagnetizerTileEntity>> teList = new ArrayList<WeakReference<DemagnetizerTileEntity>>();
 	
 	public static void addTileEntity(DemagnetizerTileEntity te) {
-		teList.add(new WeakReference<DemagnetizerTileEntity>(te));
+		synchronized (teList) {
+			teList.add(new WeakReference<DemagnetizerTileEntity>(te));
+		}
 	}
 	
 	public static void removeTileEntity(DemagnetizerTileEntity te) {
-		for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
-			WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
-			
-			if (weakRef.get() == null) {
-				iterator.remove();
-				continue;
-			}
-			
-			DemagnetizerTileEntity ent = weakRef.get();
-			
-			if (ent.isInvalid() || ent.equals(te)) {
-				iterator.remove();
+		synchronized (teList) {
+			for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
+				WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
+				
+				if (weakRef == null || weakRef.get() == null) {
+					iterator.remove();
+					continue;
+				}
+				
+				DemagnetizerTileEntity ent = weakRef.get();
+				
+				if (ent.isInvalid() || ent.equals(te)) {
+					iterator.remove();
+				}
 			}
 		}
 	}
@@ -46,52 +50,56 @@ public class DemagnetizerEventHandler {
 		
 		EntityItem item = (EntityItem) ent;
 		
-		for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
-			WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
-			
-			// Remove te if it has been GC'd
-			if (weakRef.get() == null) {
-				iterator.remove();
-				continue;
-			}
-			
-			DemagnetizerTileEntity te = weakRef.get();
-			
-			// Remove te if it has been destroyed
-			if (te.isInvalid()) {
-				iterator.remove();
-				continue;
-			}
-			
-			// Must be in the same world
-			if (!te.getWorld().equals(item.getEntityWorld())) {
-				continue;
-			}
-			
-			if (te.checkItem(item)) {
-				te.demagnetizeItem(item);
-				return;
+		synchronized (teList) {
+			for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
+				WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
+				
+				// Remove te if it has been GC'd
+				if (weakRef == null || weakRef.get() == null) {
+					iterator.remove();
+					continue;
+				}
+				
+				DemagnetizerTileEntity te = weakRef.get();
+				
+				// Remove te if it has been destroyed
+				if (te.isInvalid()) {
+					iterator.remove();
+					continue;
+				}
+				
+				// Must be in the same world
+				if (!te.getWorld().equals(item.getEntityWorld())) {
+					continue;
+				}
+				
+				if (te.checkItem(item)) {
+					te.demagnetizeItem(item);
+					return;
+				}
 			}
 		}
 	}
 	
 	public static void updateBoundingBoxes() {
-		for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
-			WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
-			
-			if (weakRef.get() == null) {
-				iterator.remove();
-				continue;
+		synchronized (teList) {
+			for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
+				WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
+				
+				if (weakRef == null || weakRef.get() == null) {
+					iterator.remove();
+					continue;
+				}
+				
+				DemagnetizerTileEntity ent = weakRef.get();
+				
+				if (ent.isInvalid()) {
+					iterator.remove();
+					continue;
+				}
+				// Force it to recalculate bounding boxes and maximum sizes
+				ent.setRange(ent.getRange());
 			}
-			
-			DemagnetizerTileEntity ent = weakRef.get();
-			
-			if (ent.isInvalid()) {
-				iterator.remove();
-				continue;
-			}
-			// Force it to recalculate bounding boxes and maximum sizes
-			ent.setRange(ent.getRange());
 		}
 	}
 

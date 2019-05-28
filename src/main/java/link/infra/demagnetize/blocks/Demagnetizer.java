@@ -65,7 +65,7 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block neighborBlock, BlockPos neighborPos) {
 		TileEntity te = worldIn.getTileEntity(pos);
 		if (te instanceof DemagnetizerTileEntity) {
-			int powerLevel = worldIn.isBlockIndirectlyGettingPowered(pos);
+			int powerLevel = worldIn.getRedstonePowerFromNeighbors(pos);
 			((DemagnetizerTileEntity) te).updateRedstone(powerLevel > 0);
 		}
 	}

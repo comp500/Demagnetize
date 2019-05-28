@@ -86,7 +86,7 @@ public class DemagnetizerGui extends GuiContainer {
 	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		String demagName = I18n.format(te.getBlockType().getUnlocalizedName() + ".name");
+		String demagName = I18n.format(te.getBlockType().getTranslationKey() + ".name");
 		int centeredPos = (xSize - fontRenderer.getStringWidth(demagName)) / 2;
 		fontRenderer.drawString(demagName, centeredPos, 6, 0x404040);
 		fontRenderer.drawString(I18n.format("container.inventory"), 8, ySize - 96 + 3, 0x404040);

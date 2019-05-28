@@ -37,11 +37,11 @@ public class CommonProxy {
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
 		event.getRegistry().register(new Demagnetizer()
-				.setUnlocalizedName(Demagnetize.MODID + ".demagnetizer")
+				.setTranslationKey(Demagnetize.MODID + ".demagnetizer")
 				.setRegistryName("demagnetizer")
 				.setCreativeTab(ModItems.tab));
 		event.getRegistry().register(new DemagnetizerAdvanced()
-				.setUnlocalizedName(Demagnetize.MODID + ".demagnetizer_advanced")
+				.setTranslationKey(Demagnetize.MODID + ".demagnetizer_advanced")
 				.setRegistryName("demagnetizer_advanced")
 				.setCreativeTab(ModItems.tab));
 		GameRegistry.registerTileEntity(DemagnetizerTileEntity.class,

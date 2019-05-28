@@ -37,14 +37,6 @@ public class ConfigHandler {
 		"Ensure this is changed on all clients and the server."})
 	@RequiresWorldRestart
 	public static int demagnetizerAdvancedFilterSlots = 9;
-	
-	@Name("Enable Botania Compatability")
-	@Comment({"Compatability with Botania's Ring of Magnetization.",
-	"This ignores the item filter due to API limitations.",
-	"If Botania is not installed, this is ignored.",
-	"Ensure this is changed on all clients and the server."})
-	@RequiresWorldRestart
-	public static boolean enableBotaniaCompat = true;
 
 	@Mod.EventBusSubscriber
 	private static class EventHandler {

@@ -2,10 +2,7 @@ package link.infra.demagnetize.blocks;
 
 import java.util.List;
 
-import org.apache.logging.log4j.Level;
-
 import link.infra.demagnetize.ConfigHandler;
-import link.infra.demagnetize.Demagnetize;
 import link.infra.demagnetize.network.PacketDemagnetizerSettings;
 import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.state.IBlockState;
@@ -19,7 +16,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.items.ItemStackHandler;
 
 public class DemagnetizerTileEntity extends TileEntity implements ITickable {
@@ -33,21 +29,10 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
 	private boolean isPowered = false;
-	private DemagnetizerSolegnoliaCompat subtile;
 
 	public DemagnetizerTileEntity() {
 		super();
 		range = getMaxRange();
-
-		if (ConfigHandler.enableBotaniaCompat && Loader.isModLoaded("botania")) {
-			try {
-				subtile = new DemagnetizerSolegnoliaCompat();
-				subtile.setRange(getMaxRange());
-				subtile.setSupertile(this);
-			} catch (Exception e) {
-				Demagnetize.logger.catching(Level.ERROR, e);
-			}
-		}
 		
 		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
@@ -60,10 +45,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private void updateBoundingBox() {
 		int negRange = range * -1;
 		scanArea = new AxisAlignedBB(getPos().add(negRange, negRange, negRange), getPos().add(range, range, range));
-		
-		if (subtile != null) {
-			subtile.setRange(range);
-		}
 	}
 
 	// Ensure that the new bounding box is updated
@@ -106,10 +87,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 		if (compound.hasKey("redstonePowered")) {
 			isPowered = compound.getBoolean("redstonePowered");
-		}
-
-		if (subtile != null) {
-			subtile.setActive(redstoneCheck());
 		}
 	}
 
@@ -155,10 +132,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		if (isInvalid()) {
 			DemagnetizerEventHandler.removeTileEntity(this);
 			return;
-		}
-		
-		if (subtile != null) {
-			subtile.onUpdate();
 		}
 
 		if (!redstoneCheck()) {
@@ -222,10 +195,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	public void updateRedstone(boolean redstoneStatus) {
 		isPowered = redstoneStatus;
 		updateBlock();
-		
-		if (subtile != null) {
-			subtile.setActive(redstoneCheck());
-		}
 	}
 
 	private boolean redstoneCheck() {
@@ -332,10 +301,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	
 	public void setRedstoneSetting(RedstoneStatus setting) {
 		this.redstoneSetting = setting;
-		
-		if (subtile != null) {
-			subtile.setActive(redstoneCheck());
-		}
 	}
 	
 	public void setWhitelist(boolean whitelist) {

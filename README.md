@@ -1,4 +1,4 @@
-# Demagnetize [![Demagnetize CurseForge Badge](http://cf.way2muchnoise.eu/full_demagnetize_magnets%20demagnetized.svg)](https://minecraft.curseforge.com/projects/demagnetize)
+# Demagnetize [![Demagnetize CurseForge Badge](http://cf.way2muchnoise.eu/full_demagnetize_magnets%20demagnetized.svg)](https://www.curseforge.com/minecraft/mc-mods/demagnetize)
 Item magnets are very helpful when mining, however they can disrupt item-based automation, such as the Atomic Reconstructor from Actually Additions. The Demagnetizer is a solution to this, which prevents item magnets from functioning within an area around them.
 
 Demagnetizers can also be filtered or redstone controlled, so that they only activate when necessary. The Advanced Demagnetizer has a larger range and more filter slots.

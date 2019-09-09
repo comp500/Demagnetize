@@ -14,24 +14,20 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
+import java.util.Objects;
+
 @Mod.EventBusSubscriber
 public class CommonProxy {
-	public void preInit(FMLPreInitializationEvent e) {
+	public void preInit() {
 		PacketHandler.registerMessages("demagnetize");
 	}
 
-	public void init(FMLInitializationEvent e) {
+	public void init() {
 		NetworkRegistry.INSTANCE.registerGuiHandler(Demagnetize.instance, new GuiProxy());
-	}
-
-	public void postInit(FMLPostInitializationEvent e) {
 	}
 
 	@SubscribeEvent
@@ -52,7 +48,7 @@ public class CommonProxy {
 
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
-		event.getRegistry().register(new ItemBlock(ModBlocks.demagnetizer).setRegistryName(ModBlocks.demagnetizer.getRegistryName()));
-		event.getRegistry().register(new ItemBlock(ModBlocks.demagnetizerAdvanced).setRegistryName(ModBlocks.demagnetizerAdvanced.getRegistryName()));
+		event.getRegistry().register(new ItemBlock(ModBlocks.demagnetizer).setRegistryName(Objects.requireNonNull(ModBlocks.demagnetizer.getRegistryName())));
+		event.getRegistry().register(new ItemBlock(ModBlocks.demagnetizerAdvanced).setRegistryName(Objects.requireNonNull(ModBlocks.demagnetizerAdvanced.getRegistryName())));
 	}
 }

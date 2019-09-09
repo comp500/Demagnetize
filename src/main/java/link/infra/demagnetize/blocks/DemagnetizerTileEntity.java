@@ -1,7 +1,5 @@
 package link.infra.demagnetize.blocks;
 
-import java.util.List;
-
 import link.infra.demagnetize.ConfigHandler;
 import link.infra.demagnetize.network.PacketDemagnetizerSettings;
 import link.infra.demagnetize.network.PacketHandler;
@@ -18,19 +16,22 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.ItemStackHandler;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+
 public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 
 	public enum RedstoneStatus {
 		REDSTONE_DISABLED, POWERED, UNPOWERED
 	}
 
-	AxisAlignedBB scanArea;
+	private AxisAlignedBB scanArea;
 	private int range;
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
 	private boolean isPowered = false;
 
-	public DemagnetizerTileEntity() {
+	DemagnetizerTileEntity() {
 		super();
 		range = getMaxRange();
 		
@@ -61,7 +62,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	}
 	
 	// Read NBT without setting BlockPos
-	public void readInternalNBT(NBTTagCompound compound) {
+	void readInternalNBT(NBTTagCompound compound) {
 		if (compound.hasKey("items")) {
 			NBTTagCompound itemsTag = (NBTTagCompound) compound.getTag("items");
 			// Reset the filter size in NBT, in case config changes
@@ -90,6 +91,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	}
 
+	@Nonnull
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
@@ -97,7 +99,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		return compound;
 	}
 	
-	public void writeInternalNBT(NBTTagCompound compound) {
+	void writeInternalNBT(NBTTagCompound compound) {
 		compound.setTag("items", itemStackHandler.serializeNBT());
 		compound.setString("redstone", redstoneSetting.name());
 		compound.setInteger("range", range);
@@ -105,6 +107,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		compound.setBoolean("redstonePowered", isPowered);
 	}
 
+	@Nonnull
 	@Override
 	public NBTTagCompound getUpdateTag() {
 		return writeToNBT(new NBTTagCompound());
@@ -134,7 +137,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			return;
 		}
 
-		if (!redstoneCheck()) {
+		if (redstoneUnpowered()) {
 			// Reset tick time when redstone disabled
 			currTick = tickTime;
 			return;
@@ -155,32 +158,27 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	}
 
-	public boolean checkItem(EntityItem item) {
-		if (!redstoneCheck()) {
+	boolean checkItem(EntityItem item) {
+		if (redstoneUnpowered()) {
 			return false;
 		}
 
 		if (scanArea != null && item != null) {
 			AxisAlignedBB entityBox = item.getEntityBoundingBox();
-			if (entityBox == null) {
-				return false;
-			}
 			return scanArea.intersects(entityBox) && checkItemFilter(item);
 		} else {
 			return false;
 		}
 	}
 
-	public void demagnetizeItem(EntityItem item) {
+	void demagnetizeItem(EntityItem item) {
 		NBTTagCompound data = item.getEntityData();
-		if (data != null) {
-			if (!data.getBoolean("PreventRemoteMovement")) {
-				data.setBoolean("PreventRemoteMovement", true);
-			}
-			// Allow machines to remotely move items
-			if (!data.getBoolean("AllowMachineRemoteMovement")) {
-				data.setBoolean("AllowMachineRemoteMovement", true);
-			}
+		if (!data.getBoolean("PreventRemoteMovement")) {
+			data.setBoolean("PreventRemoteMovement", true);
+		}
+		// Allow machines to remotely move items
+		if (!data.getBoolean("AllowMachineRemoteMovement")) {
+			data.setBoolean("AllowMachineRemoteMovement", true);
 		}
 	}
 
@@ -192,23 +190,23 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	}
 	
-	public void updateRedstone(boolean redstoneStatus) {
+	void updateRedstone(boolean redstoneStatus) {
 		isPowered = redstoneStatus;
 		updateBlock();
 	}
 
-	private boolean redstoneCheck() {
+	private boolean redstoneUnpowered() {
 		switch (redstoneSetting) {
 		case POWERED:
-			return isPowered;
-		case UNPOWERED:
 			return !isPowered;
+		case UNPOWERED:
+			return isPowered;
 		default:
-			return true;
+			return false;
 		}
 	}
 
-	protected ItemStackHandler itemStackHandler = new ItemStackHandler(getFilterSize()) {
+	ItemStackHandler itemStackHandler = new ItemStackHandler(getFilterSize()) {
 		@Override
 		protected void onContentsChanged(int slot) {
 			DemagnetizerTileEntity.this.markDirty();
@@ -219,6 +217,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			return 1; // Only allow one item
 		}
 		
+		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			this.stacks.set(slot, ItemStack.EMPTY);
@@ -230,7 +229,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		return ConfigHandler.demagnetizerFilterSlots;
 	}
 	
-	public boolean checkItemFilter(EntityItem item) {
+	private boolean checkItemFilter(EntityItem item) {
 		// Client event gives empty itemstack, cannot be compared so must ignore
 		if (item.getItem().isEmpty()) {
 			// If filter is empty and whitelist is disabled, can safely demagnetize
@@ -252,7 +251,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	}
 	
-	public boolean checkItemFilterMatches(EntityItem item) {
+	private boolean checkItemFilterMatches(EntityItem item) {
 		ItemStack matchingItem = item.getItem();
 		for (int i = 0; i < itemStackHandler.getSlots(); i++) {
 			// If the current slot index >= filter size, return and ignore future slots
@@ -271,12 +270,12 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		return false;
 	}
 
-	public boolean canInteractWith(EntityPlayer playerIn) {
+	boolean canInteractWith(EntityPlayer playerIn) {
 		// If we are too far away from this tile entity you cannot use it
 		return !isInvalid() && playerIn.getDistanceSq(pos.add(0.5D, 0.5D, 0.5D)) <= 64D;
 	}
 	
-	public int getRange() {
+	int getRange() {
 		if (range > getMaxRange()) {
 			range = getMaxRange();
 		}
@@ -286,11 +285,11 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		return range;
 	}
 	
-	public RedstoneStatus getRedstoneSetting() {
+	RedstoneStatus getRedstoneSetting() {
 		return redstoneSetting;
 	}
 	
-	public boolean isWhitelist() {
+	boolean isWhitelist() {
 		return filtersWhitelist;
 	}
 	
@@ -307,7 +306,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		this.filtersWhitelist = whitelist;
 	}
 	
-	public void sendSettingsToServer() {
+	void sendSettingsToServer() {
 		PacketHandler.INSTANCE.sendToServer(new PacketDemagnetizerSettings(range, redstoneSetting, filtersWhitelist, getPos()));
 	}
 

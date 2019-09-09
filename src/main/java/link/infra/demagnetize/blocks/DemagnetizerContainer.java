@@ -1,7 +1,5 @@
 package link.infra.demagnetize.blocks;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
@@ -9,6 +7,8 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
+
+import javax.annotation.Nonnull;
 
 public class DemagnetizerContainer extends Container {
 
@@ -44,14 +44,14 @@ public class DemagnetizerContainer extends Container {
 		}
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer playerIn) {
+	public boolean canInteractWith(@Nonnull EntityPlayer playerIn) {
 		return te.canInteractWith(playerIn);
 	}
 
@@ -60,6 +60,7 @@ public class DemagnetizerContainer extends Container {
 		super.onContainerClosed(playerIn);
 	}
 	
+	@Nonnull
 	@Override
 	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player) {
 		if (slotId >= 0 && slotId < te.getFilterSize()) {

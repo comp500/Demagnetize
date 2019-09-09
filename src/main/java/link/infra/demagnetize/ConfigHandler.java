@@ -40,7 +40,6 @@ public class ConfigHandler {
 
 	@Mod.EventBusSubscriber
 	private static class EventHandler {
-
 		// Sync configuration to gui and update demagnetizers
 		@SubscribeEvent
 		public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {

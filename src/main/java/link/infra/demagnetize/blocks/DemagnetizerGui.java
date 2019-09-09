@@ -8,9 +8,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
+import javax.annotation.Nonnull;
+
 public class DemagnetizerGui extends GuiContainer {
 	
-	public static final int GUI_ID = 1;
+	static final int GUI_ID = 1;
 	private static final ResourceLocation background = new ResourceLocation(Demagnetize.MODID, "textures/gui/demagnetizer.png");
 	private DemagnetizerTileEntity te;
 	
@@ -122,11 +124,11 @@ public class DemagnetizerGui extends GuiContainer {
 	private class RangeSlider extends GuiButton {
 
 		private int sliderValue;
-		public boolean dragging;
+		boolean dragging;
 		private final int maxValue;
 		private final int minValue = 1;
 
-		public RangeSlider(int buttonId, int x, int y, int maxRange, int value) {
+		RangeSlider(int buttonId, int x, int y, int maxRange, int value) {
 			super(buttonId, x, y, 113, 20, "");
 			this.sliderValue = value;
 			this.maxValue = maxRange;
@@ -180,12 +182,12 @@ public class DemagnetizerGui extends GuiContainer {
 			this.dragging = false;
 		}
 		
-		public void setDisplayString() {
+		void setDisplayString() {
 			String rangeText = I18n.format("label." + Demagnetize.MODID + ".demagnetizer.range.name");
 			this.displayString = rangeText + ": " + sliderValue;
 		}
 		
-		public int getValue() {
+		int getValue() {
 			return sliderValue;
 		}
 
@@ -198,7 +200,7 @@ public class DemagnetizerGui extends GuiContainer {
 		private final int resourceX;
 		private final int resourceY;
 
-		public IconButton(int buttonId, int x, int y, String[] stateList, int currentState, ResourceLocation location, int resourceX, int resourceY) {
+		IconButton(int buttonId, int x, int y, String[] stateList, int currentState, ResourceLocation location, int resourceX, int resourceY) {
 			super(buttonId, x, y, 20, 20, "");
 			
 			this.stateList = stateList;
@@ -209,7 +211,7 @@ public class DemagnetizerGui extends GuiContainer {
 		}
 		
 		@Override
-		public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks) {
+		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
 			super.drawButton(mc, mouseX, mouseY, partialTicks);
 			if (visible) {
 				mc.getTextureManager().bindTexture(location);
@@ -218,13 +220,13 @@ public class DemagnetizerGui extends GuiContainer {
 			}
 		}
 		
-		public void renderTooltip(int mouseX, int mouseY) {
+		void renderTooltip(int mouseX, int mouseY) {
 			if (isMouseOver()) {
 				drawHoveringText(I18n.format("label." + Demagnetize.MODID + ".demagnetizer." + stateList[currentState] + ".name"), mouseX, mouseY);
 			}
 		}
 		
-		public void handleClick() {
+		void handleClick() {
 			currentState++;
 			if (currentState >= stateList.length) {
 				currentState = 0;

@@ -1,9 +1,5 @@
 package link.infra.demagnetize.blocks;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
 import link.infra.demagnetize.Demagnetize;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -30,6 +26,11 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Objects;
+
 public class Demagnetizer extends Block implements ITileEntityProvider {
 
 	public Demagnetizer() {
@@ -38,7 +39,7 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(@Nonnull World worldIn, int meta) {
 		return new DemagnetizerTileEntity();
 	}
 
@@ -58,9 +59,10 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 	
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(getRegistryName(), "inventory"));
+		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0, new ModelResourceLocation(Objects.requireNonNull(getRegistryName()), "inventory"));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block neighborBlock, BlockPos neighborPos) {
 		TileEntity te = worldIn.getTileEntity(pos);
@@ -72,7 +74,7 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 	
 	// https://twitter.com/McJty/status/1002546886161596416
 	@Override
-	public void getDrops(NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
+	public void getDrops(@Nonnull NonNullList<ItemStack> drops, IBlockAccess world, BlockPos pos, @Nonnull IBlockState state, int fortune) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof DemagnetizerTileEntity) {
 			ItemStack stack = new ItemStack(Item.getItemFromBlock(this));
@@ -88,15 +90,15 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 	}
 
 	@Override
-	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
+	public boolean removedByPlayer(@Nonnull IBlockState state, World world, @Nonnull BlockPos pos, @Nonnull EntityPlayer player, boolean willHarvest) {
 		if (willHarvest) {
 			return true;
 		}
-		return super.removedByPlayer(state, world, pos, player, willHarvest);
+		return super.removedByPlayer(state, world, pos, player, false);
 	}
 	
 	@Override
-	public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, ItemStack stack) {
+	public void harvestBlock(@Nonnull World worldIn, EntityPlayer player, @Nonnull BlockPos pos, @Nonnull IBlockState state, @Nullable TileEntity te, ItemStack stack) {
 		super.harvestBlock(worldIn, player, pos, state, te, stack);
 		worldIn.setBlockToAir(pos);
 	}
@@ -118,8 +120,9 @@ public class Demagnetizer extends Block implements ITileEntityProvider {
 		}
 	}
 	
+	@Nonnull
 	@Override
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+	public ItemStack getPickBlock(@Nonnull IBlockState state, RayTraceResult target, World world, @Nonnull BlockPos pos, EntityPlayer player) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof DemagnetizerTileEntity) {
 			ItemStack stack = new ItemStack(Item.getItemFromBlock(this));

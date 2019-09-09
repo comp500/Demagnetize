@@ -40,7 +40,8 @@ public class PacketDemagnetizerSettings implements IMessage {
 		buf.writeBoolean(whitelist);
 		buf.writeLong(demagnetizerBlockPos.toLong());
 	}
-	
+
+	@SuppressWarnings("unused")
 	public PacketDemagnetizerSettings() {
 		// for server initialisation
 	}

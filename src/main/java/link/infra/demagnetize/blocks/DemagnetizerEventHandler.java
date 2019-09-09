@@ -1,28 +1,28 @@
 package link.infra.demagnetize.blocks;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 @Mod.EventBusSubscriber
 public class DemagnetizerEventHandler {
 	
-	private static List<WeakReference<DemagnetizerTileEntity>> teList = new ArrayList<WeakReference<DemagnetizerTileEntity>>();
+	private static final List<WeakReference<DemagnetizerTileEntity>> teList = new ArrayList<>();
 	
-	public static void addTileEntity(DemagnetizerTileEntity te) {
+	static void addTileEntity(DemagnetizerTileEntity te) {
 		synchronized (teList) {
-			teList.add(new WeakReference<DemagnetizerTileEntity>(te));
+			teList.add(new WeakReference<>(te));
 		}
 	}
 	
-	public static void removeTileEntity(DemagnetizerTileEntity te) {
+	static void removeTileEntity(DemagnetizerTileEntity te) {
 		synchronized (teList) {
 			for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
 				WeakReference<DemagnetizerTileEntity> weakRef = iterator.next();
@@ -33,8 +33,8 @@ public class DemagnetizerEventHandler {
 				}
 				
 				DemagnetizerTileEntity ent = weakRef.get();
-				
-				if (ent.isInvalid() || ent.equals(te)) {
+
+				if (ent == null || ent.isInvalid() || ent.equals(te)) {
 					iterator.remove();
 				}
 			}
@@ -63,7 +63,7 @@ public class DemagnetizerEventHandler {
 				DemagnetizerTileEntity te = weakRef.get();
 				
 				// Remove te if it has been destroyed
-				if (te.isInvalid()) {
+				if (te == null || te.isInvalid()) {
 					iterator.remove();
 					continue;
 				}
@@ -93,7 +93,7 @@ public class DemagnetizerEventHandler {
 				
 				DemagnetizerTileEntity ent = weakRef.get();
 				
-				if (ent.isInvalid()) {
+				if (ent == null || ent.isInvalid()) {
 					iterator.remove();
 					continue;
 				}

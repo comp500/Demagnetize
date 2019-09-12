@@ -12,7 +12,7 @@ public class Demagnetize {
 
 	public static final String MODID = "demagnetize";
 	static final String MODNAME = "Demagnetize";
-	static final String VERSION = "1.12.2-1.0.1";
+	static final String VERSION = "1.12.2-1.1.0";
 
 	@Mod.Instance
 	public static Demagnetize instance;

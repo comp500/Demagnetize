@@ -17,6 +17,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
+import java.lang.ref.WeakReference;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 
 public class DemagnetizerTileEntity extends TileEntity implements ITickable {
@@ -30,6 +33,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
 	private boolean isPowered = false;
+	private Deque<WeakReference<EntityItem>> itemUpdateQueue = new ArrayDeque<>();
 
 	DemagnetizerTileEntity() {
 		super();
@@ -143,6 +147,19 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			return;
 		}
 
+		// Check the itemUpdateQueue
+		WeakReference<EntityItem> itemRef;
+		while (!itemUpdateQueue.isEmpty()) {
+			itemRef = itemUpdateQueue.pop();
+			EntityItem item = itemRef.get();
+			if (item != null) {
+				if (!checkItemFilter(item)) {
+					continue;
+				}
+				demagnetizeItem(item);
+			}
+		}
+
 		if (currTick == tickTime) {
 			List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, scanArea);
 			for (EntityItem item : list) {
@@ -169,6 +186,23 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		} else {
 			return false;
 		}
+	}
+
+	// Queues the given item for processing on the next TE tick, returns true if this TE accepts the item
+	boolean queueItemClient(EntityItem item) {
+		if (redstoneUnpowered()) {
+			return false;
+		}
+
+		if (scanArea != null && item != null) {
+			AxisAlignedBB entityBox = item.getEntityBoundingBox();
+			// Can't use checkItemFilter yet, so queue checking for the next TE tick
+			if (scanArea.intersects(entityBox)) {
+				itemUpdateQueue.push(new WeakReference<>(item));
+				return true;
+			}
+		}
+		return false;
 	}
 
 	void demagnetizeItem(EntityItem item) {

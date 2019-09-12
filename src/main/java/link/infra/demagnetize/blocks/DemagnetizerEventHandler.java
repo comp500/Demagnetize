@@ -72,6 +72,16 @@ public class DemagnetizerEventHandler {
 				if (!te.getWorld().equals(item.getEntityWorld())) {
 					continue;
 				}
+
+				// If on the client side (empty item), queue processing of this item until the next entity tick
+				if (item.getItem().isEmpty()) {
+					// Returns true if this TE is valid for this item
+					if (te.queueItemClient(item)) {
+						return;
+					} else {
+						continue;
+					}
+				}
 				
 				if (te.checkItem(item)) {
 					te.demagnetizeItem(item);

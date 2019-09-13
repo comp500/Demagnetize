@@ -1,53 +1,58 @@
 package link.infra.demagnetize;
 
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.io.WritingMode;
 import link.infra.demagnetize.blocks.DemagnetizerEventHandler;
-import net.minecraftforge.common.config.Config;
-import net.minecraftforge.common.config.Config.Comment;
-import net.minecraftforge.common.config.Config.Name;
-import net.minecraftforge.common.config.Config.RangeInt;
-import net.minecraftforge.common.config.Config.RequiresWorldRestart;
-import net.minecraftforge.common.config.ConfigManager;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.config.ModConfig;
 
-@Config(modid = Demagnetize.MODID)
+import java.nio.file.Path;
+
+@Mod.EventBusSubscriber
 public class ConfigHandler {
-	
-	// TODO: Send settings server -> client on world join
-	
-	@Name("Demagnetizer Range")
-	@RangeInt(min = 1)
-	public static int demagnetizerRange = 4;
-	
-	@Name("Advanced Demagnetizer Range")
-	@RangeInt(min = 1)
-	public static int demagnetizerAdvancedRange = 16;
-	
-	@Name("Demagnetizer Filter Size")
-	@RangeInt(min = 1, max = 9)
-	@Comment({"The number of filter slots the Demagnetizer has.",
-		"Ensure this is changed on all clients and the server."})
-	@RequiresWorldRestart
-	public static int demagnetizerFilterSlots = 4;
-	
-	@Name("Advanced Demagnetizer Filter Size")
-	@RangeInt(min = 1, max = 9)
-	@Comment({"The number of filter slots the Advanced Demagnetizer has.",
-		"Ensure this is changed on all clients and the server."})
-	@RequiresWorldRestart
-	public static int demagnetizerAdvancedFilterSlots = 9;
+	private static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
 
-	@Mod.EventBusSubscriber
-	private static class EventHandler {
-		// Sync configuration to gui and update demagnetizers
-		@SubscribeEvent
-		public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-			if (event.getModID().equals(Demagnetize.MODID)) {
-				ConfigManager.sync(Demagnetize.MODID, Config.Type.INSTANCE);
-				DemagnetizerEventHandler.updateBoundingBoxes();
-			}
-		}
+	static ForgeConfigSpec COMMON_CONFIG;
+
+	private static final String CATEGORY_GENERAL = "general";
+	public static final ForgeConfigSpec.IntValue DEMAGNETIZER_RANGE;
+	public static final ForgeConfigSpec.IntValue DEMAGNETIZER_ADVANCED_RANGE;
+	public static final ForgeConfigSpec.IntValue DEMAGNETIZER_FILTER_SLOTS;
+	public static final ForgeConfigSpec.IntValue DEMAGNETIZER_ADVANCED_FILTER_SLOTS;
+
+	static {
+		COMMON_BUILDER.comment("General settings").push(CATEGORY_GENERAL);
+		DEMAGNETIZER_RANGE = COMMON_BUILDER.comment("Demagnetizer Range")
+				.defineInRange("demagnetizerRange", 4, 1, Integer.MAX_VALUE);
+		DEMAGNETIZER_ADVANCED_RANGE = COMMON_BUILDER.comment("Advanced Demagnetizer Range")
+				.defineInRange("demagnetizerAdvancedRange", 16, 1, Integer.MAX_VALUE);
+		DEMAGNETIZER_FILTER_SLOTS = COMMON_BUILDER.comment("Demagnetizer Filter Size")
+				.comment("The number of filter slots the Demagnetizer has, ensure this is changed on all clients and the server.")
+				.defineInRange("demagnetizerFilterSlots", 4, 1, 9);
+		DEMAGNETIZER_ADVANCED_FILTER_SLOTS = COMMON_BUILDER.comment("Advanced Demagnetizer Filter Size")
+				.comment("The number of filter slots the Advanced Demagnetizer has, ensure this is changed on all clients and the server.")
+				.defineInRange("demagnetizerAdvancedFilterSlots", 9, 1, 9);
+		COMMON_BUILDER.pop();
+
+		COMMON_CONFIG = COMMON_BUILDER.build();
+	}
+
+	static void loadConfig(ForgeConfigSpec spec, Path path) {
+		final CommentedFileConfig configData = CommentedFileConfig.builder(path)
+				.sync()
+				.autosave()
+				.writingMode(WritingMode.REPLACE)
+				.build();
+
+		configData.load();
+		spec.setConfig(configData);
+	}
+
+	@SubscribeEvent
+	public static void onReload(final ModConfig.ConfigReloading configEvent) {
+		DemagnetizerEventHandler.updateBoundingBoxes();
 	}
 
 }

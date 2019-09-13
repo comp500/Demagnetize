@@ -105,3 +105,6 @@ gradle-app.setting
 
 # ForgeGradle
 /run/
+
+# ForgeGradle 1.14+
+.idea/runConfigurations

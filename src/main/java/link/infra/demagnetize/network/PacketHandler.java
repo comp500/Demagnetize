@@ -1,26 +1,25 @@
 package link.infra.demagnetize.network;
 
-import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.relauncher.Side;
+import link.infra.demagnetize.Demagnetize;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkRegistry;
+import net.minecraftforge.fml.network.simple.SimpleChannel;
 
 public class PacketHandler {
-    private static int packetId = 0;
-    private static int nextID() {
-        return packetId++;
-    }
+	private static int packetId = 0;
 
-    public static SimpleNetworkWrapper INSTANCE = null;
+	private static final String PROTOCOL_VERSION = "1";
+	public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
+			new ResourceLocation(Demagnetize.MODID, "main"),
+			() -> PROTOCOL_VERSION,
+			PROTOCOL_VERSION::equals,
+			PROTOCOL_VERSION::equals
+	);
 
-    private PacketHandler() {}
+	private PacketHandler() {
+	}
 
-    public static void registerMessages(String channelName) {
-        INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(channelName);
-        registerMessages();
-    }
-
-    private static void registerMessages() {
-        // Register messages which are sent from the client to the server here:
-        INSTANCE.registerMessage(PacketDemagnetizerSettings.Handler.class, PacketDemagnetizerSettings.class, nextID(), Side.SERVER);
-    }
+	public static void registerMessages() {
+		INSTANCE.registerMessage(packetId++, PacketDemagnetizerSettings.class, PacketDemagnetizerSettings::encode, PacketDemagnetizerSettings::decode, PacketDemagnetizerSettings::handle);
+	}
 }

@@ -1,241 +1,201 @@
 package link.infra.demagnetize.blocks;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import link.infra.demagnetize.Demagnetize;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.widget.AbstractSlider;
+import net.minecraft.client.gui.widget.button.AbstractButton;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
 
 import javax.annotation.Nonnull;
 
-public class DemagnetizerGui extends GuiContainer {
-	
-	static final int GUI_ID = 1;
+public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 	private static final ResourceLocation background = new ResourceLocation(Demagnetize.MODID, "textures/gui/demagnetizer.png");
 	private DemagnetizerTileEntity te;
-	
+
 	private IconButton rsButton;
 	private IconButton whitelistButton;
 
-	public DemagnetizerGui(DemagnetizerTileEntity te, DemagnetizerContainer inventorySlotsIn) {
-		super(inventorySlotsIn);
-		
-		this.te = te;
+	public DemagnetizerGui(DemagnetizerContainer inventorySlotsIn, PlayerInventory inv, ITextComponent name) {
+		super(inventorySlotsIn, inv, name);
+
+		this.te = inventorySlotsIn.te;
 		xSize = 176;
 		ySize = 166;
 	}
-	
+
 	@Override
-	public void initGui() {
-		super.initGui();
-		
-		buttonList.add(new RangeSlider(0, guiLeft + 7, guiTop + 17, te.getMaxRange(), te.getRange()));
-		
+	public void init() {
+		super.init();
+
+		addButton(new RangeSlider(guiLeft + 7, guiTop + 17, te.getMaxRange(), te.getRange()));
+
 		String[] rsStates = {"rsignored", "rson", "rsoff"};
 		int currentRSState;
 		switch (te.getRedstoneSetting()) {
-		case POWERED:
-			currentRSState = 1;
-			break;
-		case UNPOWERED:
-			currentRSState = 2;
-			break;
-		case REDSTONE_DISABLED:
-		default:
-			currentRSState = 0;
+			case POWERED:
+				currentRSState = 1;
+				break;
+			case UNPOWERED:
+				currentRSState = 2;
+				break;
+			case REDSTONE_DISABLED:
+			default:
+				currentRSState = 0;
 		}
-		rsButton = new IconButton(1, guiLeft + 124, guiTop + 17, rsStates, currentRSState, background, 0, 184) {
+		rsButton = new IconButton(guiLeft + 124, guiTop + 17, rsStates, currentRSState, background, 0, 184) {
 			@Override
 			public void updateState(int currentState) {
 				switch (currentState) {
-				case 0:
-					te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.REDSTONE_DISABLED);
-					break;
-				case 1:
-					te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.POWERED);
-					break;
-				case 2:
-					te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.UNPOWERED);
-					break;
+					case 0:
+						te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.REDSTONE_DISABLED);
+						break;
+					case 1:
+						te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.POWERED);
+						break;
+					case 2:
+						te.setRedstoneSetting(DemagnetizerTileEntity.RedstoneStatus.UNPOWERED);
+						break;
 				}
 			}
 		};
-		buttonList.add(rsButton);
-		
+		addButton(rsButton);
+
 		String[] whitelistStates = {"blacklist", "whitelist"};
 		int currentWhitelistState = te.isWhitelist() ? 1 : 0;
-		whitelistButton = new IconButton(2, guiLeft + 148, guiTop + 17, whitelistStates, currentWhitelistState, background, 0, 204) {
+		whitelistButton = new IconButton(guiLeft + 148, guiTop + 17, whitelistStates, currentWhitelistState, background, 0, 204) {
 			@Override
 			public void updateState(int currentState) {
 				te.setWhitelist(currentState == 1);
 			}
 		};
-		buttonList.add(whitelistButton);
+		addButton(whitelistButton);
 	}
 
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
-		mc.getTextureManager().bindTexture(background);
+		assert minecraft != null;
+		minecraft.getTextureManager().bindTexture(background);
 		// Reset color, fixes hovering over JEI config button
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        drawTexturedModalRect(guiLeft, guiTop, 0, 0, 176, 166);
+		GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+		blit(guiLeft, guiTop, 0, 0, 176, 166);
 		for (int i = 0; i < te.getFilterSize(); i++) {
-			drawTexturedModalRect(guiLeft + 7 + (i * 18), guiTop + 52, 0, 166, 18, 18);
+			blit(guiLeft + 7 + (i * 18), guiTop + 52, 0, 166, 18, 18);
 		}
 	}
-	
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-		String demagName = I18n.format(te.getBlockType().getTranslationKey() + ".name");
-		int centeredPos = (xSize - fontRenderer.getStringWidth(demagName)) / 2;
-		fontRenderer.drawString(demagName, centeredPos, 6, 0x404040);
-		fontRenderer.drawString(I18n.format("container.inventory"), 8, ySize - 96 + 3, 0x404040);
-		fontRenderer.drawString(I18n.format("label." + Demagnetize.MODID + ".demagnetizer.filter.name"), 8, 42, 0x404040);
+		String demagName = title.getFormattedText();
+		int centeredPos = (xSize - font.getStringWidth(demagName)) / 2;
+		font.drawString(demagName, centeredPos, 6, 0x404040);
+		font.drawString(playerInventory.getDisplayName().getFormattedText(), 8, ySize - 96 + 3, 0x404040);
+		font.drawString(I18n.format("label." + Demagnetize.MODID + ".demagnetizer.filter"), 8, 42, 0x404040);
 	}
-	
+
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-		super.drawDefaultBackground();
-		super.drawScreen(mouseX, mouseY, partialTicks);
-		super.renderHoveredToolTip(mouseX, mouseY);
-		
+	public void render(int mouseX, int mouseY, float partialTicks) {
+		renderBackground();
+		super.render(mouseX, mouseY, partialTicks);
+		renderHoveredToolTip(mouseX, mouseY);
+
 		rsButton.renderTooltip(mouseX, mouseY);
 		whitelistButton.renderTooltip(mouseX, mouseY);
 	}
-	
-	public void actionPerformed(GuiButton button) {
-		switch (button.id) {
-		case 0:
-			te.setRange(((RangeSlider) button).getValue());
-			break;
-		case 1:
-		case 2:
-			((IconButton) button).handleClick();
-		}
-	}
-	
+
 	@Override
-	public void onGuiClosed() {
+	public void removed() {
 		te.sendSettingsToServer();
+		super.removed();
 	}
 
-	private class RangeSlider extends GuiButton {
-
+	private class RangeSlider extends AbstractSlider {
 		private int sliderValue;
-		boolean dragging;
 		private final int maxValue;
-		private final int minValue = 1;
+		private final static int minValue = 1;
 
-		RangeSlider(int buttonId, int x, int y, int maxRange, int value) {
-			super(buttonId, x, y, 113, 20, "");
-			this.sliderValue = value;
-			this.maxValue = maxRange;
-			setDisplayString();
-		}
-
-		// From GuiOptionSlider. I don't know why it's needed.
-		protected int getHoverState(boolean mouseOver) {
-			return 0;
-		}
-		
-		protected void mouseDragged(Minecraft mc, int mouseX, int mouseY) {
-			if (this.visible) {
-				if (this.dragging) {
-					float mouseValue = (float) (mouseX - (this.x + 4)) / (float) (this.width - 8);
-					if (mouseValue > 1F) {
-						mouseValue = 1F;
-					} else if (mouseValue < 0F) {
-						mouseValue = 0F;
-					}
-					this.sliderValue = Math.round(mouseValue * (maxValue - minValue)) + minValue;
-					setDisplayString();
-					te.setRange(sliderValue);
-				}
-
-				mc.getTextureManager().bindTexture(BUTTON_TEXTURES);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				float flValue = ((float)this.sliderValue - minValue) / (maxValue - minValue);
-				this.drawTexturedModalRect(this.x + (int) (flValue * (float) (this.width - 8)), this.y, 0, 66,
-						4, 20);
-				this.drawTexturedModalRect(this.x + (int) (flValue * (float) (this.width - 8)) + 4, this.y,
-						196, 66, 4, 20);
-			}
-		}
-		
-		public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
-			if (super.mousePressed(mc, mouseX, mouseY)) {
-				float mouseValue = (float) (mouseX - (this.x + 4)) / (float) (this.width - 8);
-				this.sliderValue = Math.round(mouseValue * (maxValue - minValue)) + minValue;
-				setDisplayString();
-				te.setRange(sliderValue);
-				
-				this.dragging = true;
-				return true;
-			} else {
-				return false;
-			}
+		RangeSlider(int x, int y, int maxRange, int value) {
+			super(x, y, 113, 20, ((float) (value - minValue)) / (float) (maxRange - minValue));
+			sliderValue = value;
+			maxValue = maxRange;
+			updateMessage();
 		}
 
-		public void mouseReleased(int mouseX, int mouseY) {
-			this.dragging = false;
-		}
-		
-		void setDisplayString() {
-			String rangeText = I18n.format("label." + Demagnetize.MODID + ".demagnetizer.range.name");
-			this.displayString = rangeText + ": " + sliderValue;
-		}
-		
-		int getValue() {
-			return sliderValue;
+		@Override
+		protected void updateMessage() {
+			String rangeText = I18n.format("label." + Demagnetize.MODID + ".demagnetizer.range");
+			setMessage(rangeText + ": " + sliderValue);
 		}
 
+		@Override
+		protected void applyValue() {
+			sliderValue = (int) (Math.round(value * (maxValue - minValue)) + minValue);
+			te.setRange(sliderValue);
+		}
 	}
-	
-	public abstract class IconButton extends GuiButton {
+
+	public abstract class IconButton extends AbstractButton {
 		private final String[] stateList;
 		private int currentState;
 		private final ResourceLocation location;
 		private final int resourceX;
 		private final int resourceY;
 
-		IconButton(int buttonId, int x, int y, String[] stateList, int currentState, ResourceLocation location, int resourceX, int resourceY) {
-			super(buttonId, x, y, 20, 20, "");
-			
+		IconButton(int x, int y, String[] stateList, int currentState, ResourceLocation location, int resourceX, int resourceY) {
+			super(x, y, 20, 20, "");
+
 			this.stateList = stateList;
 			this.currentState = currentState;
 			this.location = location;
 			this.resourceX = resourceX;
 			this.resourceY = resourceY;
 		}
-		
+
 		@Override
-		public void drawButton(@Nonnull Minecraft mc, int mouseX, int mouseY, float partialTicks) {
-			super.drawButton(mc, mouseX, mouseY, partialTicks);
-			if (visible) {
-				mc.getTextureManager().bindTexture(location);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				drawTexturedModalRect(this.x, this.y, resourceX + currentState * this.width, resourceY, this.width, this.height);
-			}
+		public void renderButton(int mouseX, int mouseY, float partialTicks) {
+			super.renderButton(mouseX, mouseY, partialTicks);
+			Minecraft mc = Minecraft.getInstance();
+			mc.getTextureManager().bindTexture(location);
+			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			blit(x, y, resourceX + currentState * width, resourceY, width, height);
 		}
-		
+
 		void renderTooltip(int mouseX, int mouseY) {
-			if (isMouseOver()) {
-				drawHoveringText(I18n.format("label." + Demagnetize.MODID + ".demagnetizer." + stateList[currentState] + ".name"), mouseX, mouseY);
+			if (isHovered()) {
+				DemagnetizerGui.this.renderTooltip(getNarrationMessage(), mouseX, mouseY);
 			}
 		}
-		
-		void handleClick() {
+
+		@Override
+		@Nonnull
+		protected String getNarrationMessage() {
+			return I18n.format("label." + Demagnetize.MODID + ".demagnetizer." + stateList[currentState]);
+		}
+
+		@Override
+		public void onPress() {
 			currentState++;
 			if (currentState >= stateList.length) {
 				currentState = 0;
 			}
 			updateState(currentState);
 		}
-		
+
 		public abstract void updateState(int currentState);
-		
+	}
+
+	// Fix for mouse dragging with RangeSlider
+	@Override
+	public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int p_mouseDragged_5_, double p_mouseDragged_6_, double p_mouseDragged_8_) {
+		boolean val = (this.getFocused() != null && this.isDragging() && p_mouseDragged_5_ == 0) && this.getFocused().mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_);
+		if (val) {
+			return true;
+		}
+		return super.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_);
 	}
 
 }

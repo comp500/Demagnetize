@@ -1,28 +1,34 @@
 package link.infra.demagnetize.blocks;
 
 import link.infra.demagnetize.ConfigHandler;
+import link.infra.demagnetize.ModBlocks;
 import link.infra.demagnetize.network.PacketDemagnetizerSettings;
 import link.infra.demagnetize.network.PacketHandler;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.network.play.server.SUpdateTileEntityPacket;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
-public class DemagnetizerTileEntity extends TileEntity implements ITickable {
+public class DemagnetizerTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider {
 
 	public enum RedstoneStatus {
 		REDSTONE_DISABLED, POWERED, UNPOWERED
@@ -33,18 +39,36 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
 	private boolean isPowered = false;
-	private Deque<WeakReference<EntityItem>> itemUpdateQueue = new ArrayDeque<>();
+	private Deque<WeakReference<ItemEntity>> itemUpdateQueue = new ArrayDeque<>();
 
-	DemagnetizerTileEntity() {
-		super();
+	final boolean advanced;
+
+	public DemagnetizerTileEntity() {
+		super(ModBlocks.DEMAGNETIZER_TILE_ENTITY);
 		range = getMaxRange();
-		
+
 		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
+
+		this.advanced = false;
+	}
+
+	// Needed because an object that extends this can't change the value given to super()
+	DemagnetizerTileEntity(boolean advanced) {
+		super(ModBlocks.DEMAGNETIZER_ADVANCED_TILE_ENTITY);
+		range = getMaxRange();
+
+		updateBoundingBox();
+		DemagnetizerEventHandler.addTileEntity(this);
+		if (!advanced) {
+			throw new IllegalStateException("This should never be called with false!");
+		}
+
+		this.advanced = true;
 	}
 
 	public int getMaxRange() {
-		return ConfigHandler.demagnetizerRange;
+		return ConfigHandler.DEMAGNETIZER_RANGE.get();
 	}
 
 	private void updateBoundingBox() {
@@ -60,73 +84,63 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound compound) {
-		super.readFromNBT(compound);
-		readInternalNBT(compound);
-	}
-	
-	// Read NBT without setting BlockPos
-	void readInternalNBT(NBTTagCompound compound) {
-		if (compound.hasKey("items")) {
-			NBTTagCompound itemsTag = (NBTTagCompound) compound.getTag("items");
+	public void read(CompoundNBT compound) {
+		if (compound.contains("items")) {
+			CompoundNBT itemsTag = compound.getCompound("items");
 			// Reset the filter size in NBT, in case config changes
-			itemsTag.setInteger("Size", getFilterSize());
+			itemsTag.putInt("Size", getFilterSize());
 			itemStackHandler.deserializeNBT(itemsTag);
 		}
-		if (compound.hasKey("redstone")) {
+		if (compound.contains("redstone")) {
 			try {
 				redstoneSetting = RedstoneStatus.valueOf(compound.getString("redstone"));
 			} catch (IllegalArgumentException e) {
 				// Ignore
 			}
 		}
-		if (compound.hasKey("range")) {
-			int pendingRange = compound.getInteger("range");
+		if (compound.contains("range")) {
+			int pendingRange = compound.getInt("range");
 			if (pendingRange <= getMaxRange() && pendingRange > 0) {
 				range = pendingRange;
 				updateBoundingBox();
 			}
 		}
-		if (compound.hasKey("whitelist")) {
+		if (compound.contains("whitelist")) {
 			filtersWhitelist = compound.getBoolean("whitelist");
 		}
-		if (compound.hasKey("redstonePowered")) {
+		if (compound.contains("redstonePowered")) {
 			isPowered = compound.getBoolean("redstonePowered");
 		}
+		super.read(compound);
 	}
 
 	@Nonnull
 	@Override
-	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
-		super.writeToNBT(compound);
-		writeInternalNBT(compound);
-		return compound;
-	}
-	
-	void writeInternalNBT(NBTTagCompound compound) {
-		compound.setTag("items", itemStackHandler.serializeNBT());
-		compound.setString("redstone", redstoneSetting.name());
-		compound.setInteger("range", range);
-		compound.setBoolean("whitelist", filtersWhitelist);
-		compound.setBoolean("redstonePowered", isPowered);
+	public CompoundNBT write(CompoundNBT compound) {
+		compound.put("items", itemStackHandler.serializeNBT());
+		compound.putString("redstone", redstoneSetting.name());
+		compound.putInt("range", range);
+		compound.putBoolean("whitelist", filtersWhitelist);
+		compound.putBoolean("redstonePowered", isPowered);
+		return super.write(compound);
 	}
 
 	@Nonnull
 	@Override
-	public NBTTagCompound getUpdateTag() {
-		return writeToNBT(new NBTTagCompound());
+	public CompoundNBT getUpdateTag() {
+		return write(new CompoundNBT());
 	}
 
 	@Override
-	public SPacketUpdateTileEntity getUpdatePacket() {
-		NBTTagCompound nbtTag = new NBTTagCompound();
-		this.writeToNBT(nbtTag);
-		return new SPacketUpdateTileEntity(getPos(), 1, nbtTag);
+	public SUpdateTileEntityPacket getUpdatePacket() {
+		CompoundNBT nbtTag = new CompoundNBT();
+		this.write(nbtTag);
+		return new SUpdateTileEntityPacket(getPos(), 1, nbtTag);
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet) {
-		this.readFromNBT(packet.getNbtCompound());
+	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
+		this.read(packet.getNbtCompound());
 	}
 
 	// Only check for items every 4 ticks
@@ -134,9 +148,9 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private int currTick = tickTime;
 
 	@Override
-	public void update() {
+	public void tick() {
 		// Remove te if it has been destroyed
-		if (isInvalid()) {
+		if (isRemoved() || !hasWorld()) {
 			DemagnetizerEventHandler.removeTileEntity(this);
 			return;
 		}
@@ -148,10 +162,10 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 
 		// Check the itemUpdateQueue
-		WeakReference<EntityItem> itemRef;
+		WeakReference<ItemEntity> itemRef;
 		while (!itemUpdateQueue.isEmpty()) {
 			itemRef = itemUpdateQueue.pop();
-			EntityItem item = itemRef.get();
+			ItemEntity item = itemRef.get();
 			if (item != null) {
 				if (!checkItemFilter(item)) {
 					continue;
@@ -161,8 +175,9 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 
 		if (currTick == tickTime) {
-			List<EntityItem> list = world.getEntitiesWithinAABB(EntityItem.class, scanArea);
-			for (EntityItem item : list) {
+			assert world != null;
+			List<ItemEntity> list = world.getEntitiesWithinAABB(ItemEntity.class, scanArea);
+			for (ItemEntity item : list) {
 				if (!checkItemFilter(item)) {
 					continue;
 				}
@@ -175,13 +190,13 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		}
 	}
 
-	boolean checkItem(EntityItem item) {
+	boolean checkItem(ItemEntity item) {
 		if (redstoneUnpowered()) {
 			return false;
 		}
 
 		if (scanArea != null && item != null) {
-			AxisAlignedBB entityBox = item.getEntityBoundingBox();
+			AxisAlignedBB entityBox = item.getBoundingBox();
 			return scanArea.intersects(entityBox) && checkItemFilter(item);
 		} else {
 			return false;
@@ -189,13 +204,13 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	}
 
 	// Queues the given item for processing on the next TE tick, returns true if this TE accepts the item
-	boolean queueItemClient(EntityItem item) {
+	boolean queueItemClient(ItemEntity item) {
 		if (redstoneUnpowered()) {
 			return false;
 		}
 
 		if (scanArea != null && item != null) {
-			AxisAlignedBB entityBox = item.getEntityBoundingBox();
+			AxisAlignedBB entityBox = item.getBoundingBox();
 			// Can't use checkItemFilter yet, so queue checking for the next TE tick
 			if (scanArea.intersects(entityBox)) {
 				itemUpdateQueue.push(new WeakReference<>(item));
@@ -205,21 +220,21 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		return false;
 	}
 
-	void demagnetizeItem(EntityItem item) {
-		NBTTagCompound data = item.getEntityData();
+	void demagnetizeItem(ItemEntity item) {
+		CompoundNBT data = item.getPersistentData();
 		if (!data.getBoolean("PreventRemoteMovement")) {
-			data.setBoolean("PreventRemoteMovement", true);
+			data.putBoolean("PreventRemoteMovement", true);
 		}
 		// Allow machines to remotely move items
 		if (!data.getBoolean("AllowMachineRemoteMovement")) {
-			data.setBoolean("AllowMachineRemoteMovement", true);
+			data.putBoolean("AllowMachineRemoteMovement", true);
 		}
 	}
 
 	public void updateBlock() {
 		markDirty();
 		if (world != null) {
-			IBlockState state = world.getBlockState(getPos());
+			BlockState state = world.getBlockState(getPos());
 			world.notifyBlockUpdate(getPos(), state, state, 3);
 		}
 	}
@@ -245,12 +260,12 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 		protected void onContentsChanged(int slot) {
 			DemagnetizerTileEntity.this.markDirty();
 		}
-		
+
 		@Override
 		public int getSlotLimit(int slot) {
 			return 1; // Only allow one item
 		}
-		
+
 		@Nonnull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
@@ -260,10 +275,10 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	};
 
 	public int getFilterSize() {
-		return ConfigHandler.demagnetizerFilterSlots;
+		return ConfigHandler.DEMAGNETIZER_FILTER_SLOTS.get();
 	}
-	
-	private boolean checkItemFilter(EntityItem item) {
+
+	private boolean checkItemFilter(ItemEntity item) {
 		// Client event gives empty itemstack, cannot be compared so must ignore
 		if (item.getItem().isEmpty()) {
 			// If filter is empty and whitelist is disabled, can safely demagnetize
@@ -284,8 +299,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			return !checkItemFilterMatches(item);
 		}
 	}
-	
-	private boolean checkItemFilterMatches(EntityItem item) {
+
+	private boolean checkItemFilterMatches(ItemEntity item) {
 		ItemStack matchingItem = item.getItem();
 		for (int i = 0; i < itemStackHandler.getSlots(); i++) {
 			// If the current slot index >= filter size, return and ignore future slots
@@ -302,11 +317,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 			}
 		}
 		return false;
-	}
-
-	boolean canInteractWith(EntityPlayer playerIn) {
-		// If we are too far away from this tile entity you cannot use it
-		return !isInvalid() && playerIn.getDistanceSq(pos.add(0.5D, 0.5D, 0.5D)) <= 64D;
 	}
 	
 	int getRange() {
@@ -342,6 +352,23 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	
 	void sendSettingsToServer() {
 		PacketHandler.INSTANCE.sendToServer(new PacketDemagnetizerSettings(range, redstoneSetting, filtersWhitelist, getPos()));
+	}
+
+	@Nonnull
+	@Override
+	public ITextComponent getDisplayName() {
+		if (advanced) {
+			return ModBlocks.DEMAGNETIZER_ADVANCED.getNameTextComponent();
+		} else {
+			return ModBlocks.DEMAGNETIZER.getNameTextComponent();
+		}
+	}
+
+	@Nullable
+	@Override
+	public Container createMenu(int i, @Nonnull PlayerInventory playerInventory, @Nonnull PlayerEntity playerEntity) {
+		assert world != null;
+		return new DemagnetizerContainer(i, world, pos, playerInventory);
 	}
 
 }

@@ -1,0 +1,7 @@
+{
+  "itemGroup.demagnetize": "Demagnetise",
+  "block.demagnetize.demagnetizer": "Demagnetiser",
+  "block.demagnetize.demagnetizer_advanced": "Advanced Demagnetiser",
+  "description.demagnetize.demagnetizer.1": "Demagnetisers prevent item magnets from various mods from picking up items around them.",
+  "description.demagnetize.demagnetizer.3": "The Advanced Demagnetiser has a larger range and more filter slots."
+}

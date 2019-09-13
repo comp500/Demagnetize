@@ -1,15 +1,16 @@
 package link.infra.demagnetize.blocks;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 @Mod.EventBusSubscriber
 public class DemagnetizerEventHandler {
@@ -34,7 +35,7 @@ public class DemagnetizerEventHandler {
 				
 				DemagnetizerTileEntity ent = weakRef.get();
 
-				if (ent == null || ent.isInvalid() || ent.equals(te)) {
+				if (ent == null || ent.isRemoved() || ent.equals(te)) {
 					iterator.remove();
 				}
 			}
@@ -44,11 +45,11 @@ public class DemagnetizerEventHandler {
 	@SubscribeEvent
 	public static void itemSpawned(EntityJoinWorldEvent event) {
 		Entity ent = event.getEntity();
-		if (!(ent instanceof EntityItem)) {
+		if (!(ent instanceof ItemEntity)) {
 			return;
 		}
-		
-		EntityItem item = (EntityItem) ent;
+
+		ItemEntity item = (ItemEntity) ent;
 		
 		synchronized (teList) {
 			for (Iterator<WeakReference<DemagnetizerTileEntity>> iterator = teList.iterator(); iterator.hasNext();) {
@@ -63,13 +64,13 @@ public class DemagnetizerEventHandler {
 				DemagnetizerTileEntity te = weakRef.get();
 				
 				// Remove te if it has been destroyed
-				if (te == null || te.isInvalid()) {
+				if (te == null || te.isRemoved()) {
 					iterator.remove();
 					continue;
 				}
 				
 				// Must be in the same world
-				if (!te.getWorld().equals(item.getEntityWorld())) {
+				if (!Objects.equals(te.getWorld(), item.getEntityWorld())) {
 					continue;
 				}
 
@@ -102,8 +103,8 @@ public class DemagnetizerEventHandler {
 				}
 				
 				DemagnetizerTileEntity ent = weakRef.get();
-				
-				if (ent == null || ent.isInvalid()) {
+
+				if (ent == null || ent.isRemoved()) {
 					iterator.remove();
 					continue;
 				}

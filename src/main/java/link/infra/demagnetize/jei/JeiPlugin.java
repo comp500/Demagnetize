@@ -1,21 +1,28 @@
 package link.infra.demagnetize.jei;
 
-import java.util.Arrays;
-
 import link.infra.demagnetize.Demagnetize;
 import link.infra.demagnetize.ModBlocks;
 import mezz.jei.api.IModPlugin;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.ingredients.VanillaTypes;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
-@JEIPlugin
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+
+@mezz.jei.api.JeiPlugin
 public class JeiPlugin implements IModPlugin {
 
 	@Override
-	public void register(IModRegistry registry) {
-		registry.addIngredientInfo(Arrays.asList(new ItemStack(ModBlocks.demagnetizer), new ItemStack(ModBlocks.demagnetizerAdvanced)), VanillaTypes.ITEM, 
+	@Nonnull
+	public ResourceLocation getPluginUid() {
+		return new ResourceLocation(Demagnetize.MODID, "main");
+	}
+
+	@Override
+	public void registerRecipes(IRecipeRegistration registry) {
+		registry.addIngredientInfo(Arrays.asList(new ItemStack(ModBlocks.DEMAGNETIZER), new ItemStack(ModBlocks.DEMAGNETIZER_ADVANCED)), VanillaTypes.ITEM,
 				"description." + Demagnetize.MODID + ".demagnetizer.1",
 				"description." + Demagnetize.MODID + ".demagnetizer.2",
 				"description." + Demagnetize.MODID + ".demagnetizer.3");

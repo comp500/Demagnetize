@@ -1,14 +1,16 @@
 package link.infra.demagnetize;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
-public class ModItems {
-	public static final CreativeTabs tab = new CreativeTabs(Demagnetize.MODID) {
-	    @Override 
+import javax.annotation.Nonnull;
+
+class ModItems {
+	static final ItemGroup tab = new ItemGroup(Demagnetize.MODID) {
+		@Override
+		@Nonnull
 	    public ItemStack createIcon() {
-	        return new ItemStack(Item.getItemFromBlock(ModBlocks.demagnetizer));
+			return new ItemStack(ModBlocks.DEMAGNETIZER);
 	    }
 	};
 

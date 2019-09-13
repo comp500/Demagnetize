@@ -1,4 +1,6 @@
 # Demagnetize [![Demagnetize CurseForge Badge](http://cf.way2muchnoise.eu/full_demagnetize_magnets%20demagnetized.svg)](https://www.curseforge.com/minecraft/mc-mods/demagnetize)
+***This is the 1.14 branch, see the 1.12 version [here](https://github.com/comp500/Demagnetize/tree/1.12)!***
+
 Item magnets are very helpful when mining, however they can disrupt item-based automation, such as the Atomic Reconstructor from Actually Additions. The Demagnetizer is a solution to this, which prevents item magnets from functioning within an area around them.
 
 Demagnetizers can also be filtered or redstone controlled, so that they only activate when necessary. The Advanced Demagnetizer has a larger range and more filter slots.
@@ -6,17 +8,21 @@ Demagnetizers can also be filtered or redstone controlled, so that they only act
 ![Demagnetizer demo gif](https://i.imgur.com/T0QpQ6r.gif)
 
 ### Mod compatibility:
-- Thermal series - Fixed completely with version 5.5.1 (minor bug previously)
+*Some of these mods are not on 1.14 yet, but they should support Demagnetize when they update*
+
+- Thermal series
 - Actually Additions
-- Botania - The item filter is ignored
-- Draconic Evolution - Fixed with version 2.3.18.329
-- Ender IO - Fixed completely with version 5.0.43 (minor bug previously)
+- Botania
+- Draconic Evolution
+- Ender IO
 - Reliquary
-- Simple Magnet - Fixed with version 1.2.11
-- Not Enough Items 1.8+ - Fixed with version 2.4.2.243
-- Quantum Flux - Fixed with version 2.0.17
-- Pickle Tweaks - Fixed with version 2.1.0
+- Simple Magnet
+- Not Enough Items 1.8+
+- Quantum Flux
+- Pickle Tweaks
 - Better Magnets
+- Ring of Attraction
+- Gobber
 
 ### For mod developers:
 If your mod has an Item Magnet, do not pick up items if the `PreventRemoteMovement` NBT tag exists on the EntityItem.

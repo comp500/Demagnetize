@@ -1,6 +1,5 @@
 package link.infra.demagnetize.blocks;
 
-import link.infra.demagnetize.ModBlocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;

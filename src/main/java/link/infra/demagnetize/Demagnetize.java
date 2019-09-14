@@ -1,15 +1,13 @@
 package link.infra.demagnetize;
 
-import link.infra.demagnetize.blocks.Demagnetizer;
-import link.infra.demagnetize.blocks.DemagnetizerContainer;
-import link.infra.demagnetize.blocks.DemagnetizerGui;
-import link.infra.demagnetize.blocks.DemagnetizerTileEntity;
+import link.infra.demagnetize.blocks.*;
+import link.infra.demagnetize.items.BlockItemClearConfiguration;
+import link.infra.demagnetize.items.ModItems;
 import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.math.BlockPos;
@@ -55,8 +53,8 @@ public class Demagnetize {
 		@SubscribeEvent
 		public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
 			Item.Properties properties = new Item.Properties().group(ModItems.tab);
-			event.getRegistry().register(new BlockItem(ModBlocks.DEMAGNETIZER, properties).setRegistryName("demagnetizer"));
-			event.getRegistry().register(new BlockItem(ModBlocks.DEMAGNETIZER_ADVANCED, properties).setRegistryName("demagnetizer_advanced"));
+			event.getRegistry().register(new BlockItemClearConfiguration(ModBlocks.DEMAGNETIZER, properties).setRegistryName("demagnetizer"));
+			event.getRegistry().register(new BlockItemClearConfiguration(ModBlocks.DEMAGNETIZER_ADVANCED, properties).setRegistryName("demagnetizer_advanced"));
 		}
 
 		@SubscribeEvent

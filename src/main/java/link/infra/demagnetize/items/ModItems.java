@@ -1,12 +1,14 @@
-package link.infra.demagnetize;
+package link.infra.demagnetize.items;
 
+import link.infra.demagnetize.Demagnetize;
+import link.infra.demagnetize.blocks.ModBlocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
 import javax.annotation.Nonnull;
 
-class ModItems {
-	static final ItemGroup tab = new ItemGroup(Demagnetize.MODID) {
+public class ModItems {
+	public static final ItemGroup tab = new ItemGroup(Demagnetize.MODID) {
 		@Override
 		@Nonnull
 	    public ItemStack createIcon() {

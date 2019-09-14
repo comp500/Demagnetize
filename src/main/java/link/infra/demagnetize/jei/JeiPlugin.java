@@ -1,7 +1,7 @@
 package link.infra.demagnetize.jei;
 
 import link.infra.demagnetize.Demagnetize;
-import link.infra.demagnetize.ModBlocks;
+import link.infra.demagnetize.blocks.ModBlocks;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeRegistration;

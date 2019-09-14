@@ -1,7 +1,6 @@
 package link.infra.demagnetize.blocks;
 
 import link.infra.demagnetize.ConfigHandler;
-import link.infra.demagnetize.ModBlocks;
 import link.infra.demagnetize.network.PacketDemagnetizerSettings;
 import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.BlockState;

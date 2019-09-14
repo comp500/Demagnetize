@@ -1,0 +1,47 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "name": "pool1",
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_name",
+              "source": "block_entity"
+            },
+            {
+              "function": "minecraft:copy_nbt",
+              "source": "block_entity",
+              "ops": [
+                {
+                  "source": "items",
+                  "target": "BlockEntityTag.items",
+                  "op": "replace"
+                },
+                {
+                  "source": "redstone",
+                  "target": "BlockEntityTag.redstone",
+                  "op": "replace"
+                },
+                {
+                  "source": "range",
+                  "target": "BlockEntityTag.range",
+                  "op": "replace"
+                },
+                {
+                  "source": "whitelist",
+                  "target": "BlockEntityTag.whitelist",
+                  "op": "replace"
+                }
+              ]
+            }
+          ],
+          "name": "demagnetize:demagnetizer_advanced"
+        }
+      ]
+    }
+  ]
+}

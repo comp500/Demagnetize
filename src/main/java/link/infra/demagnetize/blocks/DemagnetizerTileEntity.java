@@ -90,12 +90,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 
 	@Override
 	public void read(CompoundNBT compound) {
-		if (compound.contains("items")) {
-			CompoundNBT itemsTag = compound.getCompound("items");
-			// Reset the filter size in NBT, in case config changes
-			itemsTag.putInt("Size", getFilterSize());
-			itemStackHandler.deserializeNBT(itemsTag);
-		}
 		if (compound.contains("redstone")) {
 			try {
 				redstoneSetting = RedstoneStatus.valueOf(compound.getString("redstone"));
@@ -110,8 +104,18 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 				updateBoundingBox();
 			}
 		}
-		if (compound.contains("whitelist")) {
-			filtersWhitelist = compound.getBoolean("whitelist");
+		if (getFilterSize() == 0) {
+			filtersWhitelist = false;
+		} else {
+			if (compound.contains("whitelist")) {
+				filtersWhitelist = compound.getBoolean("whitelist");
+			}
+			if (compound.contains("items")) {
+				CompoundNBT itemsTag = compound.getCompound("items");
+				// Reset the filter size in NBT, in case config changes
+				itemsTag.putInt("Size", getFilterSize());
+				itemStackHandler.deserializeNBT(itemsTag);
+			}
 		}
 		if (compound.contains("redstonePowered")) {
 			isPowered = compound.getBoolean("redstonePowered");
@@ -335,7 +339,11 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	}
 	
 	public void setWhitelist(boolean whitelist) {
-		this.filtersWhitelist = whitelist;
+		if (getFilterSize() > 0) {
+			this.filtersWhitelist = whitelist;
+		} else {
+			this.filtersWhitelist = false;
+		}
 	}
 	
 	void sendSettingsToServer() {

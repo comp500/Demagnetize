@@ -20,12 +20,16 @@ public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 	private IconButton rsButton;
 	private IconButton whitelistButton;
 
+	private final boolean hasFilter;
+
 	public DemagnetizerGui(DemagnetizerContainer inventorySlotsIn, PlayerInventory inv, ITextComponent name) {
 		super(inventorySlotsIn, inv, name);
 
 		this.te = inventorySlotsIn.te;
 		xSize = 176;
 		ySize = 166;
+
+		hasFilter = te.getFilterSize() > 0;
 	}
 
 	@Override
@@ -65,15 +69,17 @@ public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 		};
 		addButton(rsButton);
 
-		String[] whitelistStates = {"blacklist", "whitelist"};
-		int currentWhitelistState = te.isWhitelist() ? 1 : 0;
-		whitelistButton = new IconButton(guiLeft + 148, guiTop + 17, whitelistStates, currentWhitelistState, background, 0, 204) {
-			@Override
-			public void updateState(int currentState) {
-				te.setWhitelist(currentState == 1);
-			}
-		};
-		addButton(whitelistButton);
+		if (hasFilter) {
+			String[] whitelistStates = {"blacklist", "whitelist"};
+			int currentWhitelistState = te.isWhitelist() ? 1 : 0;
+			whitelistButton = new IconButton(guiLeft + 148, guiTop + 17, whitelistStates, currentWhitelistState, background, 0, 204) {
+				@Override
+				public void updateState(int currentState) {
+					te.setWhitelist(currentState == 1);
+				}
+			};
+			addButton(whitelistButton);
+		}
 	}
 
 	@Override
@@ -94,7 +100,9 @@ public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 		int centeredPos = (xSize - font.getStringWidth(demagName)) / 2;
 		font.drawString(demagName, centeredPos, 6, 0x404040);
 		font.drawString(playerInventory.getDisplayName().getFormattedText(), 8, ySize - 96 + 3, 0x404040);
-		font.drawString(I18n.format("label." + Demagnetize.MODID + ".demagnetizer.filter"), 8, 42, 0x404040);
+		if (hasFilter) {
+			font.drawString(I18n.format("label." + Demagnetize.MODID + ".demagnetizer.filter"), 8, 42, 0x404040);
+		}
 	}
 
 	@Override
@@ -104,7 +112,9 @@ public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 		renderHoveredToolTip(mouseX, mouseY);
 
 		rsButton.renderTooltip(mouseX, mouseY);
-		whitelistButton.renderTooltip(mouseX, mouseY);
+		if (hasFilter) {
+			whitelistButton.renderTooltip(mouseX, mouseY);
+		}
 	}
 
 	@Override

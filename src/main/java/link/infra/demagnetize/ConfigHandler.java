@@ -30,10 +30,10 @@ public class ConfigHandler {
 				.defineInRange("demagnetizerAdvancedRange", 16, 1, Integer.MAX_VALUE);
 		DEMAGNETIZER_FILTER_SLOTS = COMMON_BUILDER.comment("Demagnetizer Filter Size")
 				.comment("The number of filter slots the Demagnetizer has, ensure this is changed on all clients and the server.")
-				.defineInRange("demagnetizerFilterSlots", 4, 1, 9);
+				.defineInRange("demagnetizerFilterSlots", 4, 0, 9);
 		DEMAGNETIZER_ADVANCED_FILTER_SLOTS = COMMON_BUILDER.comment("Advanced Demagnetizer Filter Size")
 				.comment("The number of filter slots the Advanced Demagnetizer has, ensure this is changed on all clients and the server.")
-				.defineInRange("demagnetizerAdvancedFilterSlots", 9, 1, 9);
+				.defineInRange("demagnetizerAdvancedFilterSlots", 9, 0, 9);
 		COMMON_BUILDER.pop();
 
 		COMMON_CONFIG = COMMON_BUILDER.build();

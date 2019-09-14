@@ -65,7 +65,7 @@ public class Demagnetize {
 			//noinspection ConstantConditions
 			event.getRegistry().register(TileEntityType.Builder.create(() -> new DemagnetizerTileEntity(false), ModBlocks.DEMAGNETIZER).build(null).setRegistryName("demagnetizer"));
 			//noinspection ConstantConditions
-			event.getRegistry().register(TileEntityType.Builder.create(() -> new DemagnetizerTileEntity(true), ModBlocks.DEMAGNETIZER).build(null).setRegistryName("demagnetizer_advanced"));
+			event.getRegistry().register(TileEntityType.Builder.create(() -> new DemagnetizerTileEntity(true), ModBlocks.DEMAGNETIZER_ADVANCED).build(null).setRegistryName("demagnetizer_advanced"));
 		}
 
 		@SubscribeEvent

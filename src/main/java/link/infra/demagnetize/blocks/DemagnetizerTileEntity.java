@@ -43,32 +43,18 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 
 	final boolean advanced;
 
-	public DemagnetizerTileEntity() {
-		super(ModBlocks.DEMAGNETIZER_TILE_ENTITY);
+	public DemagnetizerTileEntity(boolean advanced) {
+		super(advanced ? ModBlocks.DEMAGNETIZER_ADVANCED_TILE_ENTITY : ModBlocks.DEMAGNETIZER_TILE_ENTITY);
+		this.advanced = advanced;
+
 		range = getMaxRange();
 
 		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
-
-		this.advanced = false;
 	}
 
-	// Needed because an object that extends this can't change the value given to super()
-	DemagnetizerTileEntity(boolean advanced) {
-		super(ModBlocks.DEMAGNETIZER_ADVANCED_TILE_ENTITY);
-		range = getMaxRange();
-
-		updateBoundingBox();
-		DemagnetizerEventHandler.addTileEntity(this);
-		if (!advanced) {
-			throw new IllegalStateException("This should never be called with false!");
-		}
-
-		this.advanced = true;
-	}
-
-	public int getMaxRange() {
-		return ConfigHandler.DEMAGNETIZER_RANGE.get();
+	int getMaxRange() {
+		return advanced ? ConfigHandler.DEMAGNETIZER_ADVANCED_RANGE.get() : ConfigHandler.DEMAGNETIZER_RANGE.get();
 	}
 
 	private void updateBoundingBox() {
@@ -274,8 +260,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		}
 	};
 
-	public int getFilterSize() {
-		return ConfigHandler.DEMAGNETIZER_FILTER_SLOTS.get();
+	int getFilterSize() {
+		return advanced ? ConfigHandler.DEMAGNETIZER_ADVANCED_FILTER_SLOTS.get() : ConfigHandler.DEMAGNETIZER_FILTER_SLOTS.get();
 	}
 
 	private boolean checkItemFilter(ItemEntity item) {

@@ -1,6 +1,9 @@
 package link.infra.demagnetize;
 
-import link.infra.demagnetize.blocks.*;
+import link.infra.demagnetize.blocks.Demagnetizer;
+import link.infra.demagnetize.blocks.DemagnetizerContainer;
+import link.infra.demagnetize.blocks.DemagnetizerGui;
+import link.infra.demagnetize.blocks.DemagnetizerTileEntity;
 import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -60,9 +63,9 @@ public class Demagnetize {
 		public static void onTileEntityRegistry(final RegistryEvent.Register<TileEntityType<?>> event) {
 			// For some reason the parameter to build() is marked as @Nonnull
 			//noinspection ConstantConditions
-			event.getRegistry().register(TileEntityType.Builder.create(DemagnetizerTileEntity::new, ModBlocks.DEMAGNETIZER).build(null).setRegistryName("demagnetizer"));
+			event.getRegistry().register(TileEntityType.Builder.create(() -> new DemagnetizerTileEntity(false), ModBlocks.DEMAGNETIZER).build(null).setRegistryName("demagnetizer"));
 			//noinspection ConstantConditions
-			event.getRegistry().register(TileEntityType.Builder.create(DemagnetizerAdvancedTileEntity::new, ModBlocks.DEMAGNETIZER).build(null).setRegistryName("demagnetizer_advanced"));
+			event.getRegistry().register(TileEntityType.Builder.create(() -> new DemagnetizerTileEntity(true), ModBlocks.DEMAGNETIZER).build(null).setRegistryName("demagnetizer_advanced"));
 		}
 
 		@SubscribeEvent

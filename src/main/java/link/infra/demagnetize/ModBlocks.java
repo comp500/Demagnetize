@@ -1,7 +1,6 @@
 package link.infra.demagnetize;
 
 import link.infra.demagnetize.blocks.Demagnetizer;
-import link.infra.demagnetize.blocks.DemagnetizerAdvancedTileEntity;
 import link.infra.demagnetize.blocks.DemagnetizerContainer;
 import link.infra.demagnetize.blocks.DemagnetizerTileEntity;
 import net.minecraft.inventory.container.ContainerType;
@@ -19,7 +18,7 @@ public class ModBlocks {
 	public static TileEntityType<DemagnetizerTileEntity> DEMAGNETIZER_TILE_ENTITY;
 
 	@ObjectHolder("demagnetize:demagnetizer_advanced")
-	public static TileEntityType<DemagnetizerAdvancedTileEntity> DEMAGNETIZER_ADVANCED_TILE_ENTITY;
+	public static TileEntityType<DemagnetizerTileEntity> DEMAGNETIZER_ADVANCED_TILE_ENTITY;
 
 	@ObjectHolder("demagnetize:demagnetizer")
 	public static ContainerType<DemagnetizerContainer> DEMAGNETIZER_CONTAINER;

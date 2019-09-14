@@ -38,11 +38,7 @@ public class Demagnetizer extends Block {
 	@Nullable
 	@Override
 	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-		if (isAdvanced) {
-			return new DemagnetizerAdvancedTileEntity();
-		} else {
-			return new DemagnetizerTileEntity();
-		}
+		return new DemagnetizerTileEntity(isAdvanced);
 	}
 
 	@Override

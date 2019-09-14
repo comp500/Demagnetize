@@ -51,6 +51,25 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 
 		updateBoundingBox();
 		DemagnetizerEventHandler.addTileEntity(this);
+
+		itemStackHandler = new ItemStackHandler(getFilterSize()) {
+			@Override
+			protected void onContentsChanged(int slot) {
+				DemagnetizerTileEntity.this.markDirty();
+			}
+
+			@Override
+			public int getSlotLimit(int slot) {
+				return 1; // Only allow one item
+			}
+
+			@Nonnull
+			@Override
+			public ItemStack extractItem(int slot, int amount, boolean simulate) {
+				this.stacks.set(slot, ItemStack.EMPTY);
+				return ItemStack.EMPTY; // Extract "failed", no increment of stack size (ghost item)
+			}
+		};
 	}
 
 	int getMaxRange() {
@@ -241,24 +260,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		}
 	}
 
-	ItemStackHandler itemStackHandler = new ItemStackHandler(getFilterSize()) {
-		@Override
-		protected void onContentsChanged(int slot) {
-			DemagnetizerTileEntity.this.markDirty();
-		}
-
-		@Override
-		public int getSlotLimit(int slot) {
-			return 1; // Only allow one item
-		}
-
-		@Nonnull
-		@Override
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			this.stacks.set(slot, ItemStack.EMPTY);
-			return ItemStack.EMPTY; // Extract "failed", no increment of stack size (ghost item)
-		}
-	};
+	final ItemStackHandler itemStackHandler;
 
 	int getFilterSize() {
 		return advanced ? ConfigHandler.DEMAGNETIZER_ADVANCED_FILTER_SLOTS.get() : ConfigHandler.DEMAGNETIZER_FILTER_SLOTS.get();

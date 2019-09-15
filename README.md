@@ -19,6 +19,7 @@ Demagnetizers can also be filtered or redstone controlled, so that they only act
 - Quantum Flux - Fixed with version 2.0.17
 - Pickle Tweaks - Fixed with version 2.1.0
 - Better Magnets
+- Tiered Magnets
 
 ### For mod developers:
 If your mod has an Item Magnet, do not pick up items if the `PreventRemoteMovement` NBT tag exists on the EntityItem.

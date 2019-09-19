@@ -21,10 +21,11 @@ Demagnetizers can also be filtered or redstone controlled, so that they only act
 - Quantum Flux
 - Pickle Tweaks
 - Better Magnets
-- Ring of Attraction
-- Gobber 2
-- Tiered Magnets
-- Ender Magnet
+- Ring of Attraction *(Available for 1.14!)*
+- Gobber 2 *(Available for 1.14!)*
+- Tiered Magnets *(Available for 1.14!)*
+- Ender Magnet *(Available for 1.14!)*
+- GregTech Classic
 
 ### For mod developers:
 If your mod has an Item Magnet, do not pick up items if the `PreventRemoteMovement` NBT tag exists on the EntityItem.

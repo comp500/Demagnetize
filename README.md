@@ -20,7 +20,7 @@ Demagnetizers can also be filtered or redstone controlled, so that they only act
 - Pickle Tweaks - Fixed with version 2.1.0
 - Better Magnets
 - Tiered Magnets
-- Gregtech Classic - Fixed with version 1.03
+- GregTech Classic - Fixed with version 1.03
 
 ### For mod developers:
 If your mod has an Item Magnet, do not pick up items if the `PreventRemoteMovement` NBT tag exists on the EntityItem.

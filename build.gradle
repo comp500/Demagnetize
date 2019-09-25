@@ -160,7 +160,15 @@ publishing {
     }
     repositories {
         maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+            if (project.hasProperty("github.token")) {
+                url "https://maven.pkg.github.com/comp500/Demagnetize"
+                credentials {
+                    username "comp500"
+                    password findProperty("github.token")
+                }
+            } else {
+                url "file:///${project.projectDir}/mcmodsrepo"
+            }
         }
     }
 }

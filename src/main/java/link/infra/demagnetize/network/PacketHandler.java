@@ -8,7 +8,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 public class PacketHandler {
 	private static int packetId = 0;
 
-	private static final String PROTOCOL_VERSION = "1";
+	private static final String PROTOCOL_VERSION = "2";
 	public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
 			new ResourceLocation(Demagnetize.MODID, "main"),
 			() -> PROTOCOL_VERSION,

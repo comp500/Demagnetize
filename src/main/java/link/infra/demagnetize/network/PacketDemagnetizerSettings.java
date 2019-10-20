@@ -34,7 +34,7 @@ public class PacketDemagnetizerSettings {
 
 	void encode(PacketBuffer buf) {
 		buf.writeInt(range);
-		buf.writeString(redstoneSetting.name());
+		buf.writeChar(redstoneSetting.getNum());
 		buf.writeBoolean(whitelist);
 		buf.writeBlockPos(demagnetizerBlockPos);
 	}
@@ -42,10 +42,9 @@ public class PacketDemagnetizerSettings {
 	static PacketDemagnetizerSettings decode(PacketBuffer buf) {
 		PacketDemagnetizerSettings p = new PacketDemagnetizerSettings();
 		p.range = buf.readInt();
-		try {
-			p.redstoneSetting = RedstoneStatus.valueOf(buf.readString());
-		} catch (IllegalArgumentException e) {
-			// Ignore
+		p.redstoneSetting = RedstoneStatus.parse(buf.readChar());
+		if (p.redstoneSetting == null) {
+			p.redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 		}
 		p.whitelist = buf.readBoolean();
 		p.demagnetizerBlockPos = buf.readBlockPos();

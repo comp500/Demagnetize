@@ -18,6 +18,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
@@ -30,7 +31,25 @@ import java.util.List;
 public class DemagnetizerTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider {
 
 	public enum RedstoneStatus {
-		REDSTONE_DISABLED, POWERED, UNPOWERED
+		REDSTONE_DISABLED(0), POWERED(1), UNPOWERED(2);
+
+		private final int num;
+		RedstoneStatus(int num) {
+			this.num = num;
+		}
+
+		public int getNum() {
+			return num;
+		}
+
+		public static RedstoneStatus parse(int num) {
+			for (RedstoneStatus s : RedstoneStatus.values()) {
+				if (s.getNum() == num) {
+					return s;
+				}
+			}
+			return null;
+		}
 	}
 
 	private AxisAlignedBB scanArea;
@@ -353,9 +372,9 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	@Override
 	public ITextComponent getDisplayName() {
 		if (advanced) {
-			return ModBlocks.DEMAGNETIZER_ADVANCED.getNameTextComponent();
+			return new TranslationTextComponent(ModBlocks.DEMAGNETIZER_ADVANCED.getTranslationKey());
 		} else {
-			return ModBlocks.DEMAGNETIZER.getNameTextComponent();
+			return new TranslationTextComponent(ModBlocks.DEMAGNETIZER.getTranslationKey());
 		}
 	}
 

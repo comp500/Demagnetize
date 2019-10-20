@@ -5,7 +5,6 @@ import link.infra.demagnetize.items.BlockItemClearConfiguration;
 import link.infra.demagnetize.items.ModItems;
 import link.infra.demagnetize.network.PacketHandler;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
@@ -70,7 +69,7 @@ public class Demagnetize {
 		public static void onContainerRegistry(final RegistryEvent.Register<ContainerType<?>> event) {
 			event.getRegistry().register(IForgeContainerType.create((windowId, inv, data) -> {
 				BlockPos pos = data.readBlockPos();
-				return new DemagnetizerContainer(windowId, Minecraft.getInstance().world, pos, inv);
+				return new DemagnetizerContainer(windowId, inv.player.world, pos, inv);
 			}).setRegistryName("demagnetizer"));
 		}
 	}

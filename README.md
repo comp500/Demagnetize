@@ -8,24 +8,12 @@ Demagnetizers can also be filtered or redstone controlled, so that they only act
 ![Demagnetizer demo gif](https://i.imgur.com/T0QpQ6r.gif)
 
 ### Mod compatibility:
-*Some of these mods are not on 1.14 yet, but they should support Demagnetize when they update*
+Mods that are compatible for 1.12 are likely to also be compatible for 1.14 when they are ported to 1.14.
 
-- Thermal series
-- Actually Additions
-- Botania
-- Draconic Evolution
-- Ender IO
-- Reliquary
-- Simple Magnet
-- Not Enough Items 1.8+
-- Quantum Flux
-- Pickle Tweaks
-- Better Magnets
-- Ring of Attraction *(Available for 1.14!)*
-- Gobber 2 *(Available for 1.14!)*
-- Tiered Magnets *(Available for 1.14!)*
-- Ender Magnet *(Available for 1.14!)*
-- GregTech Classic
+- Gobber 2
+- Ring of Attraction
+- Tiered Magnets
+- Ender Magnet
 - Enigmatic Legacy
 
 ### For mod developers:

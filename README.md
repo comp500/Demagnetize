@@ -26,6 +26,7 @@ Demagnetizers can also be filtered or redstone controlled, so that they only act
 - Tiered Magnets *(Available for 1.14!)*
 - Ender Magnet *(Available for 1.14!)*
 - GregTech Classic
+- Enigmatic Legacy
 
 ### For mod developers:
 If your mod has an Item Magnet, do not pick up items if the `PreventRemoteMovement` NBT tag exists on the EntityItem.

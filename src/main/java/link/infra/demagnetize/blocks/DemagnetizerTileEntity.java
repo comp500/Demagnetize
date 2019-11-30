@@ -35,7 +35,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickable {
 	private boolean isPowered = false;
 	private Deque<WeakReference<EntityItem>> itemUpdateQueue = new ArrayDeque<>();
 
-	DemagnetizerTileEntity() {
+	public DemagnetizerTileEntity() {
 		super();
 		range = getMaxRange();
 		

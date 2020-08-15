@@ -19,13 +19,11 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.ref.WeakReference;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.List;
 
 public class DemagnetizerTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider {
@@ -57,7 +55,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
 	private boolean isPowered = false;
-	private Deque<WeakReference<ItemEntity>> itemUpdateQueue = new ArrayDeque<>();
 
 	final boolean advanced;
 
@@ -101,8 +98,15 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 
 	// Ensure that the new bounding box is updated
 	@Override
-	public void setPos(BlockPos pos) {
+	public void setPos(@Nonnull BlockPos pos) {
 		super.setPos(pos);
+		updateBoundingBox();
+	}
+
+	// Ensure that the new bounding box is updated
+	@Override
+	public void setWorldAndPos(@Nonnull World world, @Nonnull BlockPos pos) {
+		super.setWorldAndPos(world, pos);
 		updateBoundingBox();
 	}
 
@@ -119,7 +123,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 			int pendingRange = compound.getInt("range");
 			if (pendingRange <= getMaxRange() && pendingRange > 0) {
 				range = pendingRange;
-				updateBoundingBox();
 			}
 		}
 		if (getFilterSize() == 0) {
@@ -139,6 +142,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 			isPowered = compound.getBoolean("redstonePowered");
 		}
 		super.read(compound);
+		// super.read could update TE pos
+		updateBoundingBox();
 	}
 
 	@Nonnull
@@ -188,19 +193,6 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 			return;
 		}
 
-		// Check the itemUpdateQueue
-		WeakReference<ItemEntity> itemRef;
-		while (!itemUpdateQueue.isEmpty()) {
-			itemRef = itemUpdateQueue.pop();
-			ItemEntity item = itemRef.get();
-			if (item != null) {
-				if (!checkItemFilter(item)) {
-					continue;
-				}
-				demagnetizeItem(item);
-			}
-		}
-
 		if (currTick == tickTime) {
 			assert world != null;
 			List<ItemEntity> list = world.getEntitiesWithinAABB(ItemEntity.class, scanArea);
@@ -230,19 +222,17 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		}
 	}
 
-	// Queues the given item for processing on the next TE tick, returns true if this TE accepts the item
-	boolean queueItemClient(ItemEntity item) {
+	/**
+	 * Equivalent to checkItem but called on the client when the item is empty (hasn't received metadata yet)
+	 */
+	boolean checkItemClientPreMetadata(ItemEntity item) {
 		if (redstoneUnpowered()) {
 			return false;
 		}
 
 		if (scanArea != null && item != null) {
-			AxisAlignedBB entityBox = item.getBoundingBox();
 			// Can't use checkItemFilter yet, so queue checking for the next TE tick
-			if (scanArea.intersects(entityBox)) {
-				itemUpdateQueue.push(new WeakReference<>(item));
-				return true;
-			}
+			return scanArea.intersects(item.getBoundingBox());
 		}
 		return false;
 	}

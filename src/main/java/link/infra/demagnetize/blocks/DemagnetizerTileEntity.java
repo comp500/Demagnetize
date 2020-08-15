@@ -111,7 +111,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	}
 
 	@Override
-	public void read(CompoundNBT compound) {
+	public void read(@Nonnull BlockState state, CompoundNBT compound) {
 		if (compound.contains("redstone")) {
 			try {
 				redstoneSetting = RedstoneStatus.valueOf(compound.getString("redstone"));
@@ -141,7 +141,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		if (compound.contains("redstonePowered")) {
 			isPowered = compound.getBoolean("redstonePowered");
 		}
-		super.read(compound);
+		super.read(state, compound);
 		// super.read could update TE pos
 		updateBoundingBox();
 	}
@@ -172,7 +172,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 
 	@Override
 	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-		this.read(packet.getNbtCompound());
+		this.read(getBlockState(), packet.getNbtCompound());
 	}
 
 	// Only check for items every 4 ticks

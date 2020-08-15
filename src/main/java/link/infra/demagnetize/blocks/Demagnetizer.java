@@ -83,7 +83,7 @@ public class Demagnetizer extends Block {
 	@OnlyIn(Dist.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
 		if (stack.getTag() != null) {
-			tooltip.add(new TranslationTextComponent("tooltip." + Demagnetize.MODID + ".configured").applyTextStyles(TextFormatting.ITALIC, TextFormatting.GRAY));
+			tooltip.add(new TranslationTextComponent("tooltip." + Demagnetize.MODID + ".configured").mergeStyle(TextFormatting.ITALIC, TextFormatting.GRAY));
 		}
 	}
 

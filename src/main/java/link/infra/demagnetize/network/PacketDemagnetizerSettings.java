@@ -57,8 +57,7 @@ public class PacketDemagnetizerSettings {
 			if (playerEntity == null) return;
 			World world = playerEntity.getEntityWorld();
 
-			//noinspection deprecation
-			if (world.isBlockLoaded(demagnetizerBlockPos)) {
+			if (world.isAreaLoaded(demagnetizerBlockPos, 1)) {
 				TileEntity te = world.getTileEntity(demagnetizerBlockPos);
 				if (te instanceof DemagnetizerTileEntity) {
 					DemagnetizerTileEntity demagTE = (DemagnetizerTileEntity) te;

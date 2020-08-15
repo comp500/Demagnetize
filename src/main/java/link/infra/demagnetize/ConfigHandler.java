@@ -14,7 +14,7 @@ import java.nio.file.Path;
 public class ConfigHandler {
 	private static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
 
-	static ForgeConfigSpec COMMON_CONFIG;
+	static final ForgeConfigSpec COMMON_CONFIG;
 
 	private static final String CATEGORY_GENERAL = "general";
 	public static final ForgeConfigSpec.IntValue DEMAGNETIZER_RANGE;

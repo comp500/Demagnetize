@@ -1,6 +1,5 @@
 package link.infra.demagnetize.blocks;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import link.infra.demagnetize.Demagnetize;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -15,7 +14,7 @@ import javax.annotation.Nonnull;
 
 public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 	private static final ResourceLocation background = new ResourceLocation(Demagnetize.MODID, "textures/gui/demagnetizer.png");
-	private DemagnetizerTileEntity te;
+	private final DemagnetizerTileEntity te;
 
 	private IconButton rsButton;
 	private IconButton whitelistButton;
@@ -86,8 +85,6 @@ public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
 		assert minecraft != null;
 		minecraft.getTextureManager().bindTexture(background);
-		// Reset color, fixes hovering over JEI config button
-		GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		blit(guiLeft, guiTop, 0, 0, 176, 166);
 		for (int i = 0; i < te.getFilterSize(); i++) {
 			blit(guiLeft + 7 + (i * 18), guiTop + 52, 0, 166, 18, 18);
@@ -170,7 +167,6 @@ public class DemagnetizerGui extends ContainerScreen<DemagnetizerContainer> {
 			super.renderButton(mouseX, mouseY, partialTicks);
 			Minecraft mc = Minecraft.getInstance();
 			mc.getTextureManager().bindTexture(location);
-			GlStateManager.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 			blit(x, y, resourceX + currentState * width, resourceY, width, height);
 		}
 

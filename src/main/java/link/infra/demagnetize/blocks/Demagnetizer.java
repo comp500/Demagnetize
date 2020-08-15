@@ -55,8 +55,9 @@ public class Demagnetizer extends Block {
 	}
 
 	@Override
+	@Nonnull
 	@SuppressWarnings("deprecation")
-	public ActionResultType onBlockActivated(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockRayTraceResult result) {
+	public ActionResultType onBlockActivated(@Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result) {
 		if (!world.isRemote) {
 			TileEntity tileEntity = world.getTileEntity(pos);
 			if (tileEntity instanceof INamedContainerProvider) {
@@ -70,7 +71,7 @@ public class Demagnetizer extends Block {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void neighborChanged(BlockState state, World worldIn, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean isMoving) {
+	public void neighborChanged(@Nonnull BlockState state, World worldIn, @Nonnull BlockPos pos, @Nonnull Block neighborBlock, @Nonnull BlockPos neighborPos, boolean isMoving) {
 		TileEntity te = worldIn.getTileEntity(pos);
 		if (te instanceof DemagnetizerTileEntity) {
 			int powerLevel = worldIn.getRedstonePowerFromNeighbors(pos);
@@ -80,7 +81,7 @@ public class Demagnetizer extends Block {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+	public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
 		if (stack.getTag() != null) {
 			tooltip.add(new TranslationTextComponent("tooltip." + Demagnetize.MODID + ".configured").applyTextStyles(TextFormatting.ITALIC, TextFormatting.GRAY));
 		}

@@ -17,7 +17,7 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class DemagnetizerContainer extends Container {
-	DemagnetizerTileEntity te;
+	final DemagnetizerTileEntity te;
 
 	public DemagnetizerContainer(int windowId, World world, BlockPos pos, PlayerInventory playerInventory) {
 		super(ModBlocks.DEMAGNETIZER_CONTAINER, windowId);
@@ -52,7 +52,7 @@ public class DemagnetizerContainer extends Container {
 
 	@Nonnull
 	@Override
-	public ItemStack transferStackInSlot(PlayerEntity playerIn, int index) {
+	public ItemStack transferStackInSlot(@Nonnull PlayerEntity playerIn, int index) {
 		return ItemStack.EMPTY;
 	}
 
@@ -68,7 +68,7 @@ public class DemagnetizerContainer extends Container {
 	
 	@Nonnull
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, PlayerEntity player) {
+	public ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull PlayerEntity player) {
 		if (slotId >= 0 && slotId < te.getFilterSize()) {
 			Slot slot = this.inventorySlots.get(slotId);
 			ItemStack heldStack = player.inventory.getItemStack();

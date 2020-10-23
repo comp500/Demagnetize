@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 @Mod.EventBusSubscriber
 public class DemagnetizerEventHandler {
@@ -69,7 +70,7 @@ public class DemagnetizerEventHandler {
 				}
 				
 				// Must be in the same world
-				if (!te.getWorld().equals(item.getEntityWorld())) {
+				if (!Objects.equals(te.getWorld(), item.getEntityWorld())) {
 					continue;
 				}
 

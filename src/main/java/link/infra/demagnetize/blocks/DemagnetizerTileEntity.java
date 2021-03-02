@@ -92,8 +92,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	}
 
 	private void updateBoundingBox() {
-		int negRange = range * -1;
-		scanArea = new AxisAlignedBB(getPos().add(negRange, negRange, negRange), getPos().add(range, range, range));
+		scanArea = new AxisAlignedBB(getPos()).grow(range);
 	}
 
 	// Ensure that the new bounding box is updated

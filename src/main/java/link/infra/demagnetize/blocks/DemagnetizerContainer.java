@@ -1,14 +1,14 @@
 package link.infra.demagnetize.blocks;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.ClickType;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IWorldPosCallable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
@@ -16,12 +16,12 @@ import net.minecraftforge.items.wrapper.InvWrapper;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
-public class DemagnetizerContainer extends Container {
+public class DemagnetizerContainer extends AbstractContainerMenu {
 	final DemagnetizerTileEntity te;
 
-	public DemagnetizerContainer(int windowId, World world, BlockPos pos, PlayerInventory playerInventory) {
+	public DemagnetizerContainer(int windowId, Level world, BlockPos pos, Inventory playerInventory) {
 		super(ModBlocks.DEMAGNETIZER_CONTAINER, windowId);
-		this.te = (DemagnetizerTileEntity) world.getTileEntity(pos);
+		this.te = (DemagnetizerTileEntity) world.getBlockEntity(pos);
 		addOwnSlots();
 		addPlayerSlots(new InvWrapper(playerInventory));
 	}
@@ -52,37 +52,33 @@ public class DemagnetizerContainer extends Container {
 
 	@Nonnull
 	@Override
-	public ItemStack transferStackInSlot(@Nonnull PlayerEntity playerIn, int index) {
+	public ItemStack quickMoveStack(@Nonnull Player playerIn, int index) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public boolean canInteractWith(@Nonnull PlayerEntity playerEntity) {
-		World world = Objects.requireNonNull(te.getWorld());
+	public boolean stillValid(@Nonnull Player playerEntity) {
+		Level world = Objects.requireNonNull(te.getLevel());
 		if (te.advanced) {
-			return isWithinUsableDistance(IWorldPosCallable.of(world, te.getPos()), playerEntity, ModBlocks.DEMAGNETIZER_ADVANCED);
+			return stillValid(ContainerLevelAccess.create(world, te.getBlockPos()), playerEntity, ModBlocks.DEMAGNETIZER_ADVANCED);
 		} else {
-			return isWithinUsableDistance(IWorldPosCallable.of(world, te.getPos()), playerEntity, ModBlocks.DEMAGNETIZER);
+			return stillValid(ContainerLevelAccess.create(world, te.getBlockPos()), playerEntity, ModBlocks.DEMAGNETIZER);
 		}
 	}
-	
-	@Nonnull
+
 	@Override
-	public ItemStack slotClick(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull PlayerEntity player) {
+	public void clicked(int slotId, int dragType, @Nonnull ClickType clickTypeIn, @Nonnull Player player) {
 		if (slotId >= 0 && slotId < te.getFilterSize()) {
-			Slot slot = this.inventorySlots.get(slotId);
-			ItemStack heldStack = player.inventory.getItemStack();
-			
+			Slot slot = this.slots.get(slotId);
+			ItemStack heldStack = getCarried();
+
 			if (heldStack.isEmpty()) {
-				slot.putStack(ItemStack.EMPTY);
+				slot.set(ItemStack.EMPTY);
 			} else {
 				ItemStack single = heldStack.copy();
 				single.setCount(1);
-				slot.putStack(single);
+				slot.set(single);
 			}
-			return ItemStack.EMPTY;
-		}
-		return super.slotClick(slotId, dragType, clickTypeIn, player);
+		} else super.clicked(slotId, dragType, clickTypeIn, player);
 	}
-
 }

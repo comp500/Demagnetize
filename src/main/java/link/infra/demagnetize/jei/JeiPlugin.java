@@ -5,8 +5,9 @@ import link.infra.demagnetize.blocks.ModBlocks;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -22,10 +23,10 @@ public class JeiPlugin implements IModPlugin {
 
 	@Override
 	public void registerRecipes(IRecipeRegistration registry) {
-		registry.addIngredientInfo(Arrays.asList(new ItemStack(ModBlocks.DEMAGNETIZER), new ItemStack(ModBlocks.DEMAGNETIZER_ADVANCED)), VanillaTypes.ITEM,
-				"description." + Demagnetize.MODID + ".demagnetizer.1",
-				"description." + Demagnetize.MODID + ".demagnetizer.2",
-				"description." + Demagnetize.MODID + ".demagnetizer.3");
+		registry.addIngredientInfo(Arrays.asList(new ItemStack(ModBlocks.DEMAGNETIZER), new ItemStack(ModBlocks.DEMAGNETIZER_ADVANCED)), VanillaTypes.ITEM_STACK,
+				new TranslatableComponent("description." + Demagnetize.MODID + ".demagnetizer.1"),
+				new TranslatableComponent("description." + Demagnetize.MODID + ".demagnetizer.2"),
+				new TranslatableComponent("description." + Demagnetize.MODID + ".demagnetizer.3"));
 	}
 
 }

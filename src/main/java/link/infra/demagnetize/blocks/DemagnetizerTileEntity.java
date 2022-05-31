@@ -3,35 +3,33 @@ package link.infra.demagnetize.blocks;
 import link.infra.demagnetize.ConfigHandler;
 import link.infra.demagnetize.network.PacketDemagnetizerSettings;
 import link.infra.demagnetize.network.PacketHandler;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class DemagnetizerTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider {
+public class DemagnetizerTileEntity extends BlockEntity implements MenuProvider {
 
 	public enum RedstoneStatus {
 		REDSTONE_DISABLED(0), POWERED(1), UNPOWERED(2);
 
 		private final int num;
+
 		RedstoneStatus(int num) {
 			this.num = num;
 		}
@@ -50,7 +48,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		}
 	}
 
-	private AxisAlignedBB scanArea;
+	private AABB scanArea;
 	private int range;
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean filtersWhitelist = false; // Default to using blacklist
@@ -58,8 +56,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 
 	final boolean advanced;
 
-	public DemagnetizerTileEntity(boolean advanced) {
-		super(advanced ? ModBlocks.DEMAGNETIZER_ADVANCED_TILE_ENTITY : ModBlocks.DEMAGNETIZER_TILE_ENTITY);
+	public DemagnetizerTileEntity(boolean advanced, BlockPos blockPos, BlockState blockState) {
+		super(advanced ? ModBlocks.DEMAGNETIZER_ADVANCED_TILE_ENTITY : ModBlocks.DEMAGNETIZER_TILE_ENTITY, blockPos, blockState);
 		this.advanced = advanced;
 
 		range = getMaxRange();
@@ -70,7 +68,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		itemStackHandler = new ItemStackHandler(getFilterSize()) {
 			@Override
 			protected void onContentsChanged(int slot) {
-				DemagnetizerTileEntity.this.markDirty();
+				DemagnetizerTileEntity.this.setChanged();
 			}
 
 			@Override
@@ -92,25 +90,27 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	}
 
 	private void updateBoundingBox() {
-		scanArea = new AxisAlignedBB(getPos()).grow(range);
+		scanArea = new AABB(getPos()).inflate(range);
 	}
 
+	/*FIXME 1.18
 	// Ensure that the new bounding box is updated
 	@Override
-	public void setPos(@Nonnull BlockPos pos) {
-		super.setPos(pos);
+	public void setPosition(@Nonnull BlockPos pos) {
+		super.setPosition(pos);
 		updateBoundingBox();
 	}
 
 	// Ensure that the new bounding box is updated
 	@Override
-	public void setWorldAndPos(@Nonnull World world, @Nonnull BlockPos pos) {
-		super.setWorldAndPos(world, pos);
+	public void setLevelAndPosition(@Nonnull Level world, @Nonnull BlockPos pos) {
+		super.setLevelAndPosition(world, pos);
 		updateBoundingBox();
-	}
+	}*/
 
 	@Override
-	public void read(@Nonnull BlockState state, CompoundNBT compound) {
+	public void deserializeNBT(CompoundTag compound) {
+		super.deserializeNBT(compound);
 		if (compound.contains("redstone")) {
 			try {
 				redstoneSetting = RedstoneStatus.valueOf(compound.getString("redstone"));
@@ -131,7 +131,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 				filtersWhitelist = compound.getBoolean("whitelist");
 			}
 			if (compound.contains("items")) {
-				CompoundNBT itemsTag = compound.getCompound("items");
+				CompoundTag itemsTag = compound.getCompound("items");
 				// Reset the filter size in NBT, in case config changes
 				itemsTag.putInt("Size", getFilterSize());
 				itemStackHandler.deserializeNBT(itemsTag);
@@ -140,48 +140,45 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		if (compound.contains("redstonePowered")) {
 			isPowered = compound.getBoolean("redstonePowered");
 		}
-		super.read(state, compound);
 		// super.read could update TE pos
 		updateBoundingBox();
 	}
 
 	@Nonnull
 	@Override
-	public CompoundNBT write(CompoundNBT compound) {
+	public CompoundTag serializeNBT() {
+		CompoundTag compound = super.serializeNBT();
 		compound.put("items", itemStackHandler.serializeNBT());
 		compound.putString("redstone", redstoneSetting.name());
 		compound.putInt("range", range);
 		compound.putBoolean("whitelist", filtersWhitelist);
 		compound.putBoolean("redstonePowered", isPowered);
-		return super.write(compound);
+		return compound;
 	}
 
 	@Nonnull
 	@Override
-	public CompoundNBT getUpdateTag() {
-		return write(new CompoundNBT());
+	public CompoundTag getUpdateTag() {
+		return serializeNBT();
 	}
 
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket() {
-		CompoundNBT nbtTag = new CompoundNBT();
-		this.write(nbtTag);
-		return new SUpdateTileEntityPacket(getPos(), 1, nbtTag);
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket packet) {
-		this.read(getBlockState(), packet.getNbtCompound());
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket packet) {
+		this.deserializeNBT(packet.getTag());
 	}
 
 	// Only check for items every 4 ticks
 	private final int tickTime = 4;
 	private int currTick = tickTime;
 
-	@Override
 	public void tick() {
 		// Remove te if it has been destroyed
-		if (isRemoved() || !hasWorld()) {
+		if (isRemoved() || !hasLevel()) {
 			DemagnetizerEventHandler.removeTileEntity(this);
 			return;
 		}
@@ -193,8 +190,8 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		}
 
 		if (currTick == tickTime) {
-			assert world != null;
-			List<ItemEntity> list = world.getEntitiesWithinAABB(ItemEntity.class, scanArea);
+			assert level != null;
+			List<ItemEntity> list = level.getEntitiesOfClass(ItemEntity.class, scanArea);
 			for (ItemEntity item : list) {
 				if (!checkItemFilter(item)) {
 					continue;
@@ -208,13 +205,17 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		}
 	}
 
+	public BlockPos getPos() {
+		return getBlockPos();
+	}
+
 	boolean checkItem(ItemEntity item) {
 		if (redstoneUnpowered()) {
 			return false;
 		}
 
 		if (scanArea != null && item != null) {
-			AxisAlignedBB entityBox = item.getBoundingBox();
+			AABB entityBox = item.getBoundingBox();
 			return scanArea.intersects(entityBox) && checkItemFilter(item);
 		} else {
 			return false;
@@ -237,7 +238,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	}
 
 	void demagnetizeItem(ItemEntity item) {
-		CompoundNBT data = item.getPersistentData();
+		CompoundTag data = item.getPersistentData();
 		if (!data.getBoolean("PreventRemoteMovement")) {
 			data.putBoolean("PreventRemoteMovement", true);
 		}
@@ -248,27 +249,24 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 	}
 
 	public void updateBlock() {
-		markDirty();
-		if (world != null) {
-			BlockState state = world.getBlockState(getPos());
-			world.notifyBlockUpdate(getPos(), state, state, 3);
+		setChanged();
+		if (level != null) {
+			BlockState state = level.getBlockState(getPos());
+			level.sendBlockUpdated(getPos(), state, state, 3);
 		}
 	}
-	
+
 	void updateRedstone(boolean redstoneStatus) {
 		isPowered = redstoneStatus;
 		updateBlock();
 	}
 
 	private boolean redstoneUnpowered() {
-		switch (redstoneSetting) {
-		case POWERED:
-			return !isPowered;
-		case UNPOWERED:
-			return isPowered;
-		default:
-			return false;
-		}
+		return switch (redstoneSetting) {
+			case POWERED -> !isPowered;
+			case UNPOWERED -> isPowered;
+			default -> false;
+		};
 	}
 
 	final ItemStackHandler itemStackHandler;
@@ -291,7 +289,7 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 			}
 			return false;
 		}
-		
+
 		if (filtersWhitelist) {
 			return checkItemFilterMatches(item);
 		} else {
@@ -306,18 +304,18 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 			if (i >= getFilterSize()) {
 				return false;
 			}
-			
+
 			ItemStack filterStack = itemStackHandler.getStackInSlot(i);
 			if (filterStack.isEmpty()) {
 				continue;
 			}
-			if (filterStack.isItemEqualIgnoreDurability(matchingItem)) {
+			if (filterStack.sameItemStackIgnoreDurability(matchingItem)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	int getRange() {
 		if (range > getMaxRange()) {
 			range = getMaxRange();
@@ -327,24 +325,24 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 		}
 		return range;
 	}
-	
+
 	RedstoneStatus getRedstoneSetting() {
 		return redstoneSetting;
 	}
-	
+
 	boolean isWhitelist() {
 		return filtersWhitelist;
 	}
-	
+
 	public void setRange(int range) {
 		this.range = range;
 		updateBoundingBox();
 	}
-	
+
 	public void setRedstoneSetting(RedstoneStatus setting) {
 		this.redstoneSetting = setting;
 	}
-	
+
 	public void setWhitelist(boolean whitelist) {
 		if (getFilterSize() > 0) {
 			this.filtersWhitelist = whitelist;
@@ -352,26 +350,26 @@ public class DemagnetizerTileEntity extends TileEntity implements ITickableTileE
 			this.filtersWhitelist = false;
 		}
 	}
-	
+
 	void sendSettingsToServer() {
 		PacketHandler.INSTANCE.sendToServer(new PacketDemagnetizerSettings(range, redstoneSetting, filtersWhitelist, getPos()));
 	}
 
 	@Nonnull
 	@Override
-	public ITextComponent getDisplayName() {
+	public Component getDisplayName() {
 		if (advanced) {
-			return new TranslationTextComponent(ModBlocks.DEMAGNETIZER_ADVANCED.getTranslationKey());
+			return ModBlocks.DEMAGNETIZER_ADVANCED.getName();
 		} else {
-			return new TranslationTextComponent(ModBlocks.DEMAGNETIZER.getTranslationKey());
+			return ModBlocks.DEMAGNETIZER.getName();
 		}
 	}
 
 	@Nullable
 	@Override
-	public Container createMenu(int i, @Nonnull PlayerInventory playerInventory, @Nonnull PlayerEntity playerEntity) {
-		assert world != null;
-		return new DemagnetizerContainer(i, world, pos, playerInventory);
+	public AbstractContainerMenu createMenu(int i, @Nonnull Inventory playerInventory, @Nonnull Player playerEntity) {
+		assert level != null;
+		return new DemagnetizerContainer(i, level, getPos(), playerInventory);
 	}
 
 }

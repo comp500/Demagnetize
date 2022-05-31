@@ -1,39 +1,43 @@
 package link.infra.demagnetize.blocks;
 
 import link.infra.demagnetize.Demagnetize;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class Demagnetizer extends Block {
+public class Demagnetizer extends BaseEntityBlock {
 	private final boolean isAdvanced;
 
 	public Demagnetizer(boolean isAdvanced) {
-		super(Properties.create(Material.ROCK).hardnessAndResistance(1.0F));
+		super(Properties.of(Material.STONE).strength(1.0F));
 
 		this.isAdvanced = isAdvanced;
 		if (isAdvanced) {
@@ -43,59 +47,54 @@ public class Demagnetizer extends Block {
 		}
 	}
 
-	@Override
-	public boolean hasTileEntity(BlockState state) {
-		return true;
-	}
-
 	@Nullable
 	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-		return new DemagnetizerTileEntity(isAdvanced);
+	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+		return new DemagnetizerTileEntity(isAdvanced, pos, state);
 	}
 
 	@Override
 	@Nonnull
 	@SuppressWarnings("deprecation")
-	public ActionResultType onBlockActivated(@Nonnull BlockState state, World world, @Nonnull BlockPos pos, @Nonnull PlayerEntity player, @Nonnull Hand hand, @Nonnull BlockRayTraceResult result) {
-		if (!world.isRemote) {
-			TileEntity tileEntity = world.getTileEntity(pos);
-			if (tileEntity instanceof INamedContainerProvider) {
-				NetworkHooks.openGui((ServerPlayerEntity) player, (INamedContainerProvider) tileEntity, tileEntity.getPos());
+	public InteractionResult use(@Nonnull BlockState state, Level world, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult result) {
+		if (!world.isClientSide()) {
+			BlockEntity tileEntity = world.getBlockEntity(pos);
+			if (tileEntity instanceof MenuProvider) {
+				NetworkHooks.openGui((ServerPlayer) player, (MenuProvider) tileEntity, tileEntity.getBlockPos());
 			} else {
 				throw new IllegalStateException("Demagnetizer TileEntity invalid in onBlockActivated position!");
 			}
 		}
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void neighborChanged(@Nonnull BlockState state, World worldIn, @Nonnull BlockPos pos, @Nonnull Block neighborBlock, @Nonnull BlockPos neighborPos, boolean isMoving) {
-		TileEntity te = worldIn.getTileEntity(pos);
+	public void neighborChanged(@Nonnull BlockState state, Level worldIn, @Nonnull BlockPos pos, @Nonnull Block neighborBlock, @Nonnull BlockPos neighborPos, boolean isMoving) {
+		BlockEntity te = worldIn.getBlockEntity(pos);
 		if (te instanceof DemagnetizerTileEntity) {
-			int powerLevel = worldIn.getRedstonePowerFromNeighbors(pos);
+			int powerLevel = worldIn.getBestNeighborSignal(pos);
 			((DemagnetizerTileEntity) te).updateRedstone(powerLevel > 0);
 		}
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable IBlockReader worldIn, @Nonnull List<ITextComponent> tooltip, @Nonnull ITooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, @Nullable BlockGetter worldIn, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
 		if (stack.getTag() != null) {
-			tooltip.add(new TranslationTextComponent("tooltip." + Demagnetize.MODID + ".configured").mergeStyle(TextFormatting.ITALIC, TextFormatting.GRAY));
+			tooltip.add(new TranslatableComponent("tooltip." + Demagnetize.MODID + ".configured").withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
 		}
 	}
 
 	@Nonnull
 	@Override
-	public ItemStack getPickBlock(BlockState state, RayTraceResult target, IBlockReader world, BlockPos pos, PlayerEntity player) {
-		TileEntity te = world.getTileEntity(pos);
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+		BlockEntity te = level.getBlockEntity(pos);
 		if (te instanceof DemagnetizerTileEntity) {
 			ItemStack stack = new ItemStack(this);
-			CompoundNBT tagCompound = new CompoundNBT();
-			CompoundNBT tagCompoundFull = new CompoundNBT();
-			te.write(tagCompoundFull);
+			CompoundTag tagCompound = new CompoundTag();
+			CompoundTag tagCompoundFull = te.serializeNBT();
+
 
 			// Copy only specific tags to tagCompound
 			if (tagCompoundFull.contains("items"))
@@ -107,10 +106,21 @@ public class Demagnetizer extends Block {
 			if (tagCompoundFull.contains("whitelist"))
 				tagCompound.putBoolean("whitelist", tagCompoundFull.getBoolean("whitelist"));
 
-			stack.setTagInfo("BlockEntityTag", tagCompound);
+			stack.addTagElement("BlockEntityTag", tagCompound);
 			return stack;
 		}
-		return super.getPickBlock(state, target, world, pos, player);
+		return super.getCloneItemStack(state, target, level, pos, player);
 	}
 
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @Nonnull BlockState state,
+																  @Nonnull BlockEntityType<T> type) {
+		return level.isClientSide ? null
+				: (level0, pos, state0, blockEntity) -> ((DemagnetizerTileEntity) blockEntity).tick();
+	}
+
+	@Nonnull
+	public RenderShape getRenderShape(@Nonnull BlockState blockState) {
+		return RenderShape.MODEL;
+	}
 }

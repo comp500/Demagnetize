@@ -1,9 +1,9 @@
 package link.infra.demagnetize.network;
 
 import link.infra.demagnetize.Demagnetize;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
 
 public class PacketHandler {
 	private static int packetId = 0;

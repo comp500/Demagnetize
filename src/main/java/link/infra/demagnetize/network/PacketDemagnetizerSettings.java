@@ -2,12 +2,12 @@ package link.infra.demagnetize.network;
 
 import link.infra.demagnetize.blocks.DemagnetizerTileEntity;
 import link.infra.demagnetize.blocks.DemagnetizerTileEntity.RedstoneStatus;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.network.NetworkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public class PacketDemagnetizerSettings {
 	private static final Logger LOGGER = LogManager.getLogger();
-	
+
 	private int range;
 	private RedstoneStatus redstoneSetting = RedstoneStatus.REDSTONE_DISABLED;
 	private boolean whitelist;
@@ -32,14 +32,14 @@ public class PacketDemagnetizerSettings {
 		this.demagnetizerBlockPos = demagnetizerBlockPos;
 	}
 
-	void encode(PacketBuffer buf) {
+	void encode(FriendlyByteBuf buf) {
 		buf.writeInt(range);
 		buf.writeChar(redstoneSetting.getNum());
 		buf.writeBoolean(whitelist);
 		buf.writeBlockPos(demagnetizerBlockPos);
 	}
 
-	static PacketDemagnetizerSettings decode(PacketBuffer buf) {
+	static PacketDemagnetizerSettings decode(FriendlyByteBuf buf) {
 		PacketDemagnetizerSettings p = new PacketDemagnetizerSettings();
 		p.range = buf.readInt();
 		p.redstoneSetting = RedstoneStatus.parse(buf.readChar());
@@ -53,14 +53,13 @@ public class PacketDemagnetizerSettings {
 
 	void handle(Supplier<NetworkEvent.Context> ctx) {
 		ctx.get().enqueueWork(() -> {
-			ServerPlayerEntity playerEntity = ctx.get().getSender();
+			ServerPlayer playerEntity = ctx.get().getSender();
 			if (playerEntity == null) return;
-			World world = playerEntity.getEntityWorld();
+			Level world = playerEntity.getLevel();
 
 			if (world.isAreaLoaded(demagnetizerBlockPos, 1)) {
-				TileEntity te = world.getTileEntity(demagnetizerBlockPos);
-				if (te instanceof DemagnetizerTileEntity) {
-					DemagnetizerTileEntity demagTE = (DemagnetizerTileEntity) te;
+				BlockEntity te = world.getBlockEntity(demagnetizerBlockPos);
+				if (te instanceof DemagnetizerTileEntity demagTE) {
 					demagTE.setRange(range);
 					demagTE.setRedstoneSetting(redstoneSetting);
 					demagTE.setWhitelist(whitelist);

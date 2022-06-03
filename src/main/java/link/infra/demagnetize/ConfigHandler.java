@@ -2,11 +2,8 @@ package link.infra.demagnetize;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
-import link.infra.demagnetize.blocks.DemagnetizerEventHandler;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 
 import java.nio.file.Path;
 
@@ -50,9 +47,10 @@ public class ConfigHandler {
 		spec.setConfig(configData);
 	}
 
+	/*//FIXME 1.18 I can't find the reload Event
 	@SubscribeEvent
 	public static void onReload(final ModConfig.Reloading configEvent) {
 		DemagnetizerEventHandler.updateBoundingBoxes();
-	}
+	}*/
 
 }

@@ -1,11 +1,11 @@
 package link.infra.demagnetize.items;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public class BlockItemClearConfiguration extends BlockItem {
 	public BlockItemClearConfiguration(Block block, Properties props) {
@@ -14,9 +14,9 @@ public class BlockItemClearConfiguration extends BlockItem {
 
 	@Override
 	public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entity) {
-		if (!entity.world.isRemote) {
-			BlockPos pos = entity.getPosition();
-			if (entity.world.getBlockState(pos).getBlock() == Blocks.WATER) {
+		if (!entity.level.isClientSide) {
+			BlockPos pos = entity.getOnPos();
+			if (entity.level.getBlockState(pos).getBlock() == Blocks.WATER) {
 				stack.setTag(null);
 			}
 		}
